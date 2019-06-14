@@ -29,6 +29,7 @@ class Wsdl2JavaPlugin : Plugin<Project> {
             it.add(project.dependencies.create("org.apache.cxf:cxf-tools-wsdlto-frontend-jaxws:${extension.cxfVersion.get()}"))
             it.add(project.dependencies.create("org.apache.cxf:cxf-tools-wsdlto-databinding-jaxb:${extension.cxfVersion.get()}"))
             it.add(project.dependencies.create("jakarta.xml.ws:jakarta.xml.ws-api:2.3.2"))
+            it.add(project.dependencies.create("org.slf4j:slf4j-simple:1.7.26"))
         }
 
         project.configurations.named("implementation") {

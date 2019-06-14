@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.github.bjornvester"
-version = "0.1"
+version = "0.2"
 
 repositories {
     jcenter()
@@ -27,10 +27,12 @@ gradlePlugin {
 pluginBundle {
     website = "https://github.com/bjornvester/wsdl2java-gradle-plugin"
     vcsUrl = "https://github.com/bjornvester/wsdl2java-gradle-plugin"
-    description = "Adds CXF wsdl2java tool to your project. Please see the Github project page for details."
+    description = """Adds CXF wsdl2java tool to your project. Works with Java 8 and 11, and supports the Gradle build cache.
+        |Please see the Github project page for details.""".trimMargin()
     (plugins) {
         "wsdl2JavaPlugin" {
             displayName = "Gradle Wsdl2Java plugin"
+            description = "Changes: Support relocated project directories"
             tags = listOf("wsdl2java", "cxf", "wsimport")
         }
     }
