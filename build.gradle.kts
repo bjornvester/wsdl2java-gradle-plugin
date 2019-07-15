@@ -15,6 +15,11 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
 }
 
+tasks.withType<Wrapper> {
+    distributionType = Wrapper.DistributionType.ALL
+    gradleVersion = "5.5.1"
+}
+
 gradlePlugin {
     plugins {
         create("wsdl2JavaPlugin") {
