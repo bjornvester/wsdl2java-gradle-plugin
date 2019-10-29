@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.github.bjornvester"
-version = "0.2"
+version = "0.3"
 
 repositories {
     jcenter()
@@ -37,7 +37,8 @@ pluginBundle {
     (plugins) {
         "wsdl2JavaPlugin" {
             displayName = "Gradle Wsdl2Java plugin"
-            description = "Changes: Support relocated project directories"
+            description = "Changes: \n" +
+                    "- Fix path separator in the WsdlLocation for the generated client when building on Windows"
             tags = listOf("wsdl2java", "cxf", "wsimport")
         }
     }

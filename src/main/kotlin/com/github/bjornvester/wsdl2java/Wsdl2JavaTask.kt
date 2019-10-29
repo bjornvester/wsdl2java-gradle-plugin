@@ -57,7 +57,7 @@ open class Wsdl2JavaTask : DefaultTask() {
                     val args = arrayOf(
                             "-verbose",
                             "-wsdlLocation",
-                            wsdlFile.relativeTo(wsdlInputDir.asFile.get()).path,
+                            wsdlFile.relativeTo(wsdlInputDir.asFile.get()).invariantSeparatorsPath,
                             "-suppress-generated-date",
                             "-autoNameResolution",
                             "-d",
