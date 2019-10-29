@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.3.31"
+    kotlin("jvm") version "1.3.50"
     id("java-gradle-plugin")
     id("com.gradle.plugin-publish") version "0.10.1"
 }
@@ -17,7 +17,7 @@ dependencies {
 
 tasks.withType<Wrapper> {
     distributionType = Wrapper.DistributionType.ALL
-    gradleVersion = "5.5.1"
+    gradleVersion = "5.6.3"
 }
 
 gradlePlugin {
@@ -32,7 +32,7 @@ gradlePlugin {
 pluginBundle {
     website = "https://github.com/bjornvester/wsdl2java-gradle-plugin"
     vcsUrl = "https://github.com/bjornvester/wsdl2java-gradle-plugin"
-    description = """Adds CXF wsdl2java tool to your project. Works with Java 8 and 11, and supports the Gradle build cache.
+    description = """Adds the CXF wsdl2java tool to your project. Works with Java 8 and 11, and supports the Gradle build cache.
         |Please see the Github project page for details.""".trimMargin()
     (plugins) {
         "wsdl2JavaPlugin" {
