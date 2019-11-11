@@ -14,16 +14,16 @@ import java.net.URLClassLoader
 open class Wsdl2JavaTask : DefaultTask() {
     @get:InputDirectory
     @get:PathSensitive(PathSensitivity.RELATIVE)
-    var wsdlInputDir: DirectoryProperty = getWsdl2JavaExtension().wsdlDir
+    val wsdlInputDir: DirectoryProperty = getWsdl2JavaExtension().wsdlDir
 
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     @Optional
-    var wsdlFiles: ConfigurableFileCollection = getWsdl2JavaExtension().wsdlFiles
+    val wsdlFiles: ConfigurableFileCollection = getWsdl2JavaExtension().wsdlFiles
 
     @get:OutputDirectory
     @get:PathSensitive(PathSensitivity.RELATIVE)
-    var sourcesOutputDir: DirectoryProperty = getWsdl2JavaExtension().generatedSourceDir
+    val sourcesOutputDir: DirectoryProperty = getWsdl2JavaExtension().generatedSourceDir
 
     init {
         group = BasePlugin.BUILD_GROUP

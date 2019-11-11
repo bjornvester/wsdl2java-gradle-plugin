@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.github.bjornvester"
-version = "0.3"
+version = "0.4"
 
 repositories {
     jcenter()
@@ -38,7 +38,7 @@ pluginBundle {
         "wsdl2JavaPlugin" {
             displayName = "Gradle Wsdl2Java plugin"
             description = "Changes: \n" +
-                    "- Fix path separator in the WsdlLocation for the generated client when building on Windows"
+                    "- Make the extension properties immutable. This gets rid of a deprecation warning in Gradle 6.0."
             tags = listOf("wsdl2java", "cxf", "wsimport")
         }
     }
