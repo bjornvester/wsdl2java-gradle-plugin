@@ -7,8 +7,8 @@ import org.gradle.api.provider.Property
 import javax.inject.Inject
 
 open class Wsdl2JavaPluginExtension @Inject constructor(project: Project) {
-    var wsdlDir: DirectoryProperty = project.objects.directoryProperty().convention(project.layout.projectDirectory.dir("src/main/resources"))
-    var wsdlFiles: ConfigurableFileCollection = project.objects.fileCollection()
-    var generatedSourceDir: DirectoryProperty = project.objects.directoryProperty().convention(project.layout.buildDirectory.dir("generated/wsdl2java"))
-    var cxfVersion: Property<String> = project.objects.property(String::class.java).convention("3.3.2")
+    val wsdlDir: DirectoryProperty = project.objects.directoryProperty().convention(project.layout.projectDirectory.dir("src/main/resources"))
+    val wsdlFiles: ConfigurableFileCollection = project.objects.fileCollection()
+    val generatedSourceDir: DirectoryProperty = project.objects.directoryProperty().convention(project.layout.buildDirectory.dir("generated/wsdl2java"))
+    val cxfVersion: Property<String> = project.objects.property(String::class.java).convention("3.3.2")
 }
