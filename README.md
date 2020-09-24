@@ -32,6 +32,38 @@ wsdl2java {
 }
 ```
 
+You can optionally specify WSDL and generated source directories like this:
+
+```groovy
+wsdl2java {
+    generatedSourceDir = file("${projectDir}/src/main/service")
+    wsdlDir = file("${projectDir}/src/main/resources")
+}
+```
+
+If your WSDL files breach the `theEnumMemberSizeCap` limit, you can specify a
+JAXB binding file to raise the `theEnumMemberSizeCap` limit like this:
+
+```groovy
+wsdl2java {
+    bindingFile = "${projectDir}/src/main/resources/binding.xjb"
+}
+```
+
+And add a `src/main/resources/binding.xjb` file, e.g.
+
+```xml
+<jxb:bindings xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:jxb="http://java.sun.com/xml/ns/jaxb" version="2.1">
+
+    <!-- Raise theEnumMemberSizeCap limit -->
+    <jxb:bindings>
+        <jxb:globalBindings typesafeEnumMaxMembers="2000" />
+    </jxb:bindings>
+
+</jxb:bindings>
+```
+
 If your WSDL files include non-ANSI characters, you should set the corresponding file encoding in your gradle.properties file. E.g.:
 
 ```properties

@@ -7,6 +7,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.plugins.BasePlugin
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import java.net.URLClassLoader
 
@@ -21,8 +22,11 @@ open class Wsdl2JavaTask : DefaultTask() {
     @Optional
     var wsdlFiles: ConfigurableFileCollection = getWsdl2JavaExtension().wsdlFiles
 
+    @get:Input
+    @Optional
+    var bindingFile: Property<String> = getWsdl2JavaExtension().bindingFile
+
     @get:OutputDirectory
-    @get:PathSensitive(PathSensitivity.RELATIVE)
     var sourcesOutputDir: DirectoryProperty = getWsdl2JavaExtension().generatedSourceDir
 
     init {
@@ -54,7 +58,7 @@ open class Wsdl2JavaTask : DefaultTask() {
                 computedWsdlFiles.forEach { wsdlFile ->
                     project.logger.info("Importing file ${wsdlFile.absolutePath}")
 
-                    val args = arrayOf(
+                    val defaultargs = arrayOf(
                             "-verbose",
                             "-wsdlLocation",
                             wsdlFile.relativeTo(wsdlInputDir.asFile.get()).invariantSeparatorsPath,
@@ -64,6 +68,14 @@ open class Wsdl2JavaTask : DefaultTask() {
                             sourcesOutputDir.get().toString(),
                             wsdlFile.path
                     )
+                    val args = if (bindingFile.get().isBlank()) {
+                      defaultargs
+                    } else {
+                      arrayOf(
+                            "-b",
+                            bindingFile.get().toString()
+                      ) + defaultargs
+                    }
 
                     val toolContext = toolContextClass.newInstance()
                     val wsdlToJava = wsdlToJavaClass.getConstructor(Array<String>::class.java).newInstance(args)
