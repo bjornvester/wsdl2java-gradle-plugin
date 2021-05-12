@@ -1,27 +1,24 @@
 plugins {
     id("com.github.bjornvester.wsdl2java")
+    id("com.github.bjornvester.wsdl2java.internal.java-conventions")
 }
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.4.2")
-    testImplementation("com.github.tomakehurst:wiremock:2.23.2")
-    testImplementation("org.apache.cxf:cxf-rt-frontend-jaxws:3.3.2")
+    implementation(platform("org.apache.cxf:cxf-bom:3.4.3"))
 
-    testRuntimeOnly("org.apache.cxf:cxf-rt-transports-http:3.3.2")
-    testRuntimeOnly("org.apache.cxf:cxf-rt-transports-http-jetty:3.3.2")
-    testRuntimeOnly("com.sun.activation:javax.activation:1.2.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
+    testImplementation("com.github.tomakehurst:wiremock:2.27.2")
+    testImplementation("org.apache.cxf:cxf-rt-frontend-jaxws")
 
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.4.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.4.2")
-    testRuntimeOnly("org.slf4j:slf4j-simple:1.7.26")
-}
-
-configurations.all {
-    exclude("javax.activation-api")
+    testRuntimeOnly("javax.annotation:javax.annotation-api:1.3.2")
+    testRuntimeOnly("org.apache.cxf:cxf-rt-transports-http")
+    testRuntimeOnly("org.apache.cxf:cxf-rt-transports-http-jetty")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.1")
+    testRuntimeOnly("org.slf4j:slf4j-simple:1.7.30")
 }
 
 tasks.test {
@@ -29,5 +26,5 @@ tasks.test {
 }
 
 wsdl2java {
-    cxfVersion.set("3.3.2")
+    cxfVersion.set("3.4.2")
 }

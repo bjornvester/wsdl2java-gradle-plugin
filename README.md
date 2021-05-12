@@ -2,10 +2,9 @@
 A Gradle plugin for generating Java classes from WSDL files through CXF.
 
 ## Requirements and limitations
-The plugin currently requires Gradle 5.4 or later.
-I hope to make it work with earlier versions as well at some point.
+The plugin currently requires Gradle 5.4 or later. (Tested with Gradle 5.4 and 7.0.)
 
-It has been tested with Java 8 and Java 11.
+It has been tested with Java 8, 11 and 16.
 
 It is currently not possible to customize the CXF code generation tool.
 This will be implemented later.
@@ -28,7 +27,7 @@ You can specify the version of CXF used for code generation like this:
 
 ```kotlin
 wsdl2java {
-    cxfVersion.set("3.3.2")
+    cxfVersion.set("3.4.3")
 }
 ```
 
@@ -70,10 +69,10 @@ If your WSDL files include non-ANSI characters, you should set the corresponding
 org.gradle.jvmargs=-Dfile.encoding=UTF-8
 ```
 
-Note that the plugin will add the following two dependencies to your "implementation" configuration:
+Note that the plugin will add the following two dependencies to your `implementation` configuration:
 
 ```
-jakarta.xml.ws:jakarta.xml.ws-api:2.3.2
+jakarta.xml.ws:jakarta.xml.ws-api:2.3.3
 jakarta.jws:jakarta.jws-api:1.1.1
 ```
 

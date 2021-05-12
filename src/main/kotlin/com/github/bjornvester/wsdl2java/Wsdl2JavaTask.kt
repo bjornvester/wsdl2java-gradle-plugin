@@ -20,14 +20,14 @@ open class Wsdl2JavaTask : DefaultTask() {
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     @Optional
-    var wsdlFiles: ConfigurableFileCollection = getWsdl2JavaExtension().wsdlFiles
+    val wsdlFiles: ConfigurableFileCollection = getWsdl2JavaExtension().wsdlFiles
 
     @get:Input
     @Optional
-    var bindingFile: Property<String> = getWsdl2JavaExtension().bindingFile
+    val bindingFile: Property<String> = getWsdl2JavaExtension().bindingFile
 
     @get:OutputDirectory
-    var sourcesOutputDir: DirectoryProperty = getWsdl2JavaExtension().generatedSourceDir
+    val sourcesOutputDir: DirectoryProperty = getWsdl2JavaExtension().generatedSourceDir
 
     init {
         group = BasePlugin.BUILD_GROUP
@@ -42,7 +42,7 @@ open class Wsdl2JavaTask : DefaultTask() {
         val computedWsdlFiles = when {
             !wsdlFiles.isEmpty -> wsdlFiles.iterator()
             else -> wsdlInputDir.asFileTree.matching {
-                it.include("**/*.wsdl")
+                include("**/*.wsdl")
             }.files.ifEmpty { throw GradleException("Could not find any WSDL files to import") }.iterator()
         }
 
@@ -53,7 +53,7 @@ open class Wsdl2JavaTask : DefaultTask() {
         URLClassLoader(dependentFiles.map { it.toURI().toURL() }.toTypedArray()).use { classLoader ->
             val wsdlToJavaClass = classLoader.loadClass("org.apache.cxf.tools.wsdlto.WSDLToJava")
             val toolContextClass = classLoader.loadClass("org.apache.cxf.tools.common.ToolContext")
-            Thread.currentThread().setContextClassLoader(classLoader)
+            Thread.currentThread().contextClassLoader = classLoader
             try {
                 computedWsdlFiles.forEach { wsdlFile ->
                     project.logger.info("Importing file ${wsdlFile.absolutePath}")
@@ -77,12 +77,12 @@ open class Wsdl2JavaTask : DefaultTask() {
                       ) + defaultargs
                     }
 
-                    val toolContext = toolContextClass.newInstance()
+                    val toolContext = toolContextClass.getConstructor().newInstance()
                     val wsdlToJava = wsdlToJavaClass.getConstructor(Array<String>::class.java).newInstance(args)
                     wsdlToJavaClass.getMethod("run", toolContextClass).invoke(wsdlToJava, toolContext)
                 }
             } finally {
-                Thread.currentThread().setContextClassLoader(originalClassLoader)
+                Thread.currentThread().contextClassLoader = originalClassLoader
             }
         }
     }
