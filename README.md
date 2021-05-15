@@ -23,6 +23,7 @@ By default, the plugin will create Java classes for all the WSDL files in the re
 
 The generated code will by default end up in the directory build/generated/wsdl2java folder.
 
+### Configure the CXF version
 You can specify the version of CXF used for code generation like this:
 
 ```kotlin
@@ -31,6 +32,7 @@ wsdl2java {
 }
 ```
 
+### Configure directories
 You can optionally specify WSDL and generated source directories like this:
 
 ```groovy
@@ -40,16 +42,21 @@ wsdl2java {
 }
 ```
 
-If your WSDL files breach the `theEnumMemberSizeCap` limit, you can specify a
-JAXB binding file to raise the `theEnumMemberSizeCap` limit like this:
+Note that the `generatedSourceDir` will be wiped completely on each run, so don't put other source files in it.
+
+The `wsdlDir` is only used for up-to-date checking. It must contain all resources used by the WSDLs (e.g. included XSDs as well).
+
+### Configure binding files
+
+A binding file can be added like this:
 
 ```groovy
 wsdl2java {
-    bindingFile = "${projectDir}/src/main/resources/binding.xjb"
+    bindingFile = "${projectDir}/src/main/bindings/binding.xjb"
 }
 ```
 
-And add a `src/main/resources/binding.xjb` file, e.g.
+If you get a warning on maximum enum member size, you can raise the maximum like this:
 
 ```xml
 <jxb:bindings xmlns:xs="http://www.w3.org/2001/XMLSchema"
@@ -63,12 +70,40 @@ And add a `src/main/resources/binding.xjb` file, e.g.
 </jxb:bindings>
 ```
 
+If you like to use the Java Date/Time API instead of the more clunky GregorianCalendar class, you can use `threeten-jaxb` library with a binding file like this:
+
+```groovy
+// build.gradle
+dependencies {
+    implementation("io.github.threeten-jaxb:threeten-jaxb-core:1.2")
+}
+
+wsdl2java {
+    bindingFile.set("$projectDir/src/main/bindings/bindings.xml")
+}
+```
+
+```xml
+<!-- bindings.xml -->
+<bindings xmlns="http://java.sun.com/xml/ns/jaxb" version="2.1"
+          xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc">
+    <globalBindings>
+        <xjc:javaType name="java.time.OffsetDate" xmlType="xs:date"
+                      adapter="io.github.threetenjaxb.core.OffsetTimeXmlAdapter"/>
+        <xjc:javaType name="java.time.OffsetDateTime" xmlType="xs:dateTime"
+                      adapter="io.github.threetenjaxb.core.OffsetDateTimeXmlAdapter"/>
+    </globalBindings>
+</bindings>
+```
+
+### Configure encoding
 If your WSDL files include non-ANSI characters, you should set the corresponding file encoding in your gradle.properties file. E.g.:
 
 ```properties
 org.gradle.jvmargs=-Dfile.encoding=UTF-8
 ```
 
+## Other
 Note that the plugin will add the following two dependencies to your `implementation` configuration:
 
 ```
@@ -79,6 +114,6 @@ jakarta.jws:jakarta.jws-api:1.1.1
 These are required to compile the generated code.
 However, depending on your runtime platform, you may want to exclude them and instead either put them in the "compileOnly" configuration, or use whatever libraries that are provided by the platform.
 
-There is a full example available in the integration-test directory.
+There are full examples available in the integration-test directory.
 
 If you need to compile additional XMl schemas (xsd files) not directly referenced by the wsdl files, you can use the [com.github.bjornvester.xjc](https://plugins.gradle.org/plugin/com.github.bjornvester.xjc) plugin in addition.

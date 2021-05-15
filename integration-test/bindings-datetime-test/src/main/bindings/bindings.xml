@@ -1,0 +1,9 @@
+<bindings xmlns="http://java.sun.com/xml/ns/jaxb" version="2.1"
+          xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc">
+    <globalBindings>
+        <xjc:javaType name="java.time.OffsetDate" xmlType="xs:date"
+                      adapter="io.github.threetenjaxb.core.OffsetTimeXmlAdapter"/>
+        <xjc:javaType name="java.time.OffsetDateTime" xmlType="xs:dateTime"
+                      adapter="io.github.threetenjaxb.core.OffsetDateTimeXmlAdapter"/>
+    </globalBindings>
+</bindings>

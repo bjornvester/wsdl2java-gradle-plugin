@@ -3,7 +3,6 @@ package com.github.bjornvester.wsdl2java
 import com.github.bjornvester.wsdl2java.Wsdl2JavaPlugin.Companion.WSDL2JAVA_CONFIGURATION_NAME
 import com.github.bjornvester.wsdl2java.Wsdl2JavaPlugin.Companion.WSDL2JAVA_EXTENSION_NAME
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.internal.file.FileOperations
@@ -47,18 +46,11 @@ open class Wsdl2JavaTask @Inject constructor(
         fileOperations.delete(sourcesOutputDir)
         fileOperations.mkdir(sourcesOutputDir)
 
-        val computedWsdlFiles = when {
-            !wsdlFiles.isEmpty -> wsdlFiles.iterator()
-            else -> wsdlInputDir.asFileTree.matching {
-                include("**/*.wsdl")
-            }.files.ifEmpty { throw GradleException("Could not find any WSDL files to import") }.iterator()
-        }
-
         val workerExecutor = workerExecutor.classLoaderIsolation {
             classpath.from(project.configurations.named(WSDL2JAVA_CONFIGURATION_NAME).get().resolve())
         }
 
-        computedWsdlFiles.forEach { wsdlFile ->
+        wsdlFiles.forEach { wsdlFile ->
             val defaultargs = arrayOf(
                 "-verbose",
                 "-wsdlLocation",

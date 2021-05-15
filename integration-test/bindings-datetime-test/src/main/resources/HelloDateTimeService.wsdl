@@ -10,7 +10,7 @@
                    xmlns:xs="http://www.w3.org/2001/XMLSchema">
             <xs:complexType name="sayHi">
                 <xs:sequence>
-                    <xs:element name="arg0" type="xs:string"/>
+                    <xs:element name="arg0" type="xs:dateTime"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="sayHiResponse">

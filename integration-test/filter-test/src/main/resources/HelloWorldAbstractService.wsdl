@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <wsdl:definitions name="HelloWorldAbstractService"
-                  targetNamespace="http://github.com/bjornvester"
+                  targetNamespace="http://github.com/bjornvester/example/abstract"
                   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-                  xmlns:tns="http://github.com/bjornvester"
+                  xmlns:tns="http://github.com/bjornvester/example/abstract"
                   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
     <wsdl:types>
-        <xs:schema targetNamespace="http://github.com/bjornvester"
-                   xmlns="http://github.com/bjornvester"
+        <xs:schema targetNamespace="http://github.com/bjornvester/example/abstract"
+                   xmlns="http://github.com/bjornvester/example/abstract"
                    xmlns:xs="http://www.w3.org/2001/XMLSchema">
             <xs:complexType name="sayHi">
                 <xs:sequence>
