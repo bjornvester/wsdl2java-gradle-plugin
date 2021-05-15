@@ -19,7 +19,32 @@ abstract class Wsdl2JavaWorker : WorkAction<Wsdl2JavaWorkerParams> {
             // We can't propagate the exception as it might contain classes from CXF which are not available outside the worker execution context
 
             logger.error("Failed to generate sources from WSDL", e)
-            throw GradleException("Failed to generate Java sources from WSDL. See the log for details. Error message is: ${e.message}")
+            throw GradleException("Failed to generate Java sources from WSDL. See the log for details.")
+        }
+
+        fixGeneratedAnnotations()
+    }
+
+    private fun fixGeneratedAnnotations() {
+        if (parameters.switchGeneratedAnnotation || parameters.removeDateFromGeneratedAnnotation) {
+            parameters.outputDir.asFileTree.forEach {
+                logger.debug("Fixing the @Generated annotation in file $it")
+                var source = it.readText()
+
+                if (parameters.switchGeneratedAnnotation) {
+                    source = source.replaceFirst("import javax.annotation.Generated", "import javax.annotation.processing.Generated")
+                }
+
+                if (parameters.removeDateFromGeneratedAnnotation) {
+                    // Remove the "date" part from the @Generated annotation
+                    // Input example: @Generated(value = "org.apache.cxf.tools.wsdlto.WSDLToJava", date = "2021-05-15T21:18:42.272+02:00", comments = "Apache CXF 3.4.3")
+                    // Note that the 'value' property may contain classes in the 'com.sun.tools.xjc' namespace
+                    val generatedPattern = """(@Generated\(value = "[\w\.]*"), date = "[^"]*"([^)]*\))"""
+                    source = source.replace(Regex(generatedPattern), "$1$2")
+                }
+
+                it.writeText(source)
+            }
         }
     }
 }

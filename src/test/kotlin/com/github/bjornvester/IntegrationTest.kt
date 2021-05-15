@@ -36,6 +36,13 @@ open class IntegrationTest {
                 .writeText(tempDir.resolve(JAVA_CONVENTIONS_FILE).readText().replace("JavaLanguageVersion.of(8)", "JavaLanguageVersion.of($javaVersion)"))
         }
 
+        // Set the 'markGenerated' property according to the JDK used
+        // Set the Java version
+        if (javaVersion !in listOf("8", "NA")) {
+            tempDir.resolve(BUILD_FILE_WITH_MARK_GENERATED)
+                .writeText(tempDir.resolve(BUILD_FILE_WITH_MARK_GENERATED).readText().replace("yes-jdk8", "yes-jdk9"))
+        }
+
         GradleRunner
             .create()
             .forwardOutput()
@@ -66,6 +73,7 @@ open class IntegrationTest {
     companion object {
         const val SETTINGS_FILE = "settings.gradle.kts"
         const val JAVA_CONVENTIONS_FILE = "buildSrc/src/main/kotlin/com.github.bjornvester.wsdl2java.internal.java-conventions.gradle.kts"
+        const val BUILD_FILE_WITH_MARK_GENERATED = "generated-annotation-test/build.gradle.kts"
 
         @JvmStatic
         @Suppress("unused")

@@ -1,16 +1,16 @@
-<?xml version='1.0' encoding='UTF-8'?><!-- 5 -->
+<?xml version='1.0' encoding='UTF-8'?>
 <wsdl:definitions name="HelloWorldService"
-                  targetNamespace="http://github.com/bjornvester"
+                  targetNamespace="http://github.com/bjornvester/example/markgenerated"
                   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-                  xmlns:tns="http://github.com/bjornvester"
+                  xmlns:tns="http://github.com/bjornvester/example/markgenerated"
                   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
     <wsdl:types>
-        <xs:schema targetNamespace="http://github.com/bjornvester"
-                   xmlns="http://github.com/bjornvester"
+        <xs:schema targetNamespace="http://github.com/bjornvester/example/markgenerated"
+                   xmlns="http://github.com/bjornvester/example/markgenerated"
                    xmlns:xs="http://www.w3.org/2001/XMLSchema">
             <xs:complexType name="sayHi">
                 <xs:sequence>
-                    <xs:element name="arg0" type="xs:dateTime"/>
+                    <xs:element name="arg0" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="sayHiResponse">

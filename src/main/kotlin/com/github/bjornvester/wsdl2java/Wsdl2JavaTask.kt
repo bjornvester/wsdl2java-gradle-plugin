@@ -2,6 +2,8 @@ package com.github.bjornvester.wsdl2java
 
 import com.github.bjornvester.wsdl2java.Wsdl2JavaPlugin.Companion.WSDL2JAVA_CONFIGURATION_NAME
 import com.github.bjornvester.wsdl2java.Wsdl2JavaPlugin.Companion.WSDL2JAVA_EXTENSION_NAME
+import com.github.bjornvester.wsdl2java.Wsdl2JavaPluginExtension.Companion.MARK_GENERATED_YES_JDK8
+import com.github.bjornvester.wsdl2java.Wsdl2JavaPluginExtension.Companion.MARK_GENERATED_YES_JDK9
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
@@ -30,7 +32,7 @@ open class Wsdl2JavaTask @Inject constructor(
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     @Optional
-    val bindingFile= objects.fileProperty().convention(getWsdl2JavaExtension().bindingFile)
+    val bindingFile = objects.fileProperty().convention(getWsdl2JavaExtension().bindingFile)
 
     @get:Input
     @Optional
@@ -42,13 +44,19 @@ open class Wsdl2JavaTask @Inject constructor(
     @get:Input
     val suppressGeneratedDate = objects.property(Boolean::class.java).convention(getWsdl2JavaExtension().suppressGeneratedDate)
 
+    @get:Input
+    @Optional
+    val markGenerated = objects.property(String::class.java).convention(getWsdl2JavaExtension().markGenerated)
+
+    @get:Classpath
+    val wsdl2JavaConfiguration = project.configurations.named(WSDL2JAVA_CONFIGURATION_NAME)
+
     @get:OutputDirectory
     val sourcesOutputDir: DirectoryProperty = objects.directoryProperty().convention(getWsdl2JavaExtension().generatedSourceDir)
 
     init {
         group = BasePlugin.BUILD_GROUP
         description = "Generates Java classes from WSDL files."
-        dependsOn(project.configurations.named(WSDL2JAVA_CONFIGURATION_NAME)) // TODO: Can't remember why this was added. Figure out why, and if so, add a comment about it
     }
 
     @TaskAction
@@ -59,7 +67,7 @@ open class Wsdl2JavaTask @Inject constructor(
         fileOperations.mkdir(sourcesOutputDir)
 
         val workerExecutor = workerExecutor.classLoaderIsolation {
-            classpath.from(project.configurations.named(WSDL2JAVA_CONFIGURATION_NAME).get().resolve())
+            classpath.from(wsdl2JavaConfiguration)
         }
 
         val defaultArgs = buildDefaultArguments()
@@ -81,6 +89,13 @@ open class Wsdl2JavaTask @Inject constructor(
 
             workerExecutor.submit(Wsdl2JavaWorker::class.java) {
                 args = computedArgs.toTypedArray()
+                outputDir = sourcesOutputDir.get()
+                switchGeneratedAnnotation = (markGenerated.get() == MARK_GENERATED_YES_JDK9)
+                removeDateFromGeneratedAnnotation =
+                    (markGenerated.get() in listOf(
+                        MARK_GENERATED_YES_JDK8,
+                        MARK_GENERATED_YES_JDK9
+                    )) && suppressGeneratedDate.get()
             }
         }
 
@@ -95,6 +110,10 @@ open class Wsdl2JavaTask @Inject constructor(
 
         if (suppressGeneratedDate.get()) {
             defaultArgs.add("-suppress-generated-date")
+        }
+
+        if (markGenerated.get() in listOf(MARK_GENERATED_YES_JDK8, MARK_GENERATED_YES_JDK9)) {
+            defaultArgs.add("-mark-generated")
         }
 
         if (verbose.get()) {
@@ -123,6 +142,7 @@ open class Wsdl2JavaTask @Inject constructor(
                 "-d" to "Configured through the 'generatedSourceDir' property",
                 "-b" to "Configured through the 'bindingFile' property",
                 "-suppress-generated-date" to "Configured through the 'suppressGeneratedDate' property",
+                "-mark-generated" to "Configured through the 'markGenerated' property",
                 "-autoNameResolution" to "Configured automatically and cannot currently be overridden"
             )
 

@@ -33,16 +33,17 @@ wsdl2java {
 
 Here is a list of all available properties:
 
-| Property              | Type                  | Default                                                                              | Description                                                                                                        |
-|-----------------------|-----------------------|--------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
-| wsdlDir               | DirectoryProperty     | "$projectDir/src<br>/main/resources"                                                 | The directory holding the xsd files to compile.                                                                    |
-| wsdlFiles             | FileCollection        | wsdlDir<br>&nbsp;&nbsp;.asFileTree<br>&nbsp;&nbsp;.matching { include("**/*.wsdl") } | The schemas to compile.<br>If empty, all files in the xsdDir will be compiled.                                     |
-| generatedSourceDir    | DirectoryProperty     | "$buildDir/generated<br>/sources/wsdl2java/java"                                     | The output directory for the generated Java sources.<br>Note that it will be deleted when running XJC.             |
-| bindingFile           | RegularFileProperty   | \[not set\]                                                                          | A binding file to use in the schema compiler                                                                       |
-| cxfVersion            | Provider\<String>     | "3.4.3"                                                                              | The version of CXF to use.                                                                                         |
-| verbose               | Provider\<Boolean>    | true                                                                                 | Enables verbose output from CXF.                                                                                   |
-| suppressGeneratedDate | Provider\<Boolean>    | true                                                                                 | Supresses generating dates in CXF. Default is true to enable reproducible builds and to work with the build cache. |
-| options               | ListProperty\<String> | \[empty\]                                                                            | Additional options to pass to the tool. See [here](https://cxf.apache.org/docs/wsdl-to-java.html) for details.     |
+| Property              | Type                  | Default                                                                              | Description                                                                                                         |
+|-----------------------|-----------------------|--------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| wsdlDir               | DirectoryProperty     | "$projectDir/src<br>/main/resources"                                                 | The directory holding the xsd files to compile.                                                                     |
+| wsdlFiles             | FileCollection        | wsdlDir<br>&nbsp;&nbsp;.asFileTree<br>&nbsp;&nbsp;.matching { include("**/*.wsdl") } | The schemas to compile.<br>If empty, all files in the xsdDir will be compiled.                                      |
+| generatedSourceDir    | DirectoryProperty     | "$buildDir/generated<br>/sources/wsdl2java/java"                                     | The output directory for the generated Java sources.<br>Note that it will be deleted when running XJC.              |
+| bindingFile           | RegularFileProperty   | \[not set\]                                                                          | A binding file to use in the schema compiler                                                                        |
+| cxfVersion            | Provider\<String>     | "3.4.3"                                                                              | The version of CXF to use.                                                                                          |
+| verbose               | Provider\<Boolean>    | true                                                                                 | Enables verbose output from CXF.                                                                                    |
+| suppressGeneratedDate | Provider\<Boolean>    | true                                                                                 | Suppresses generating dates in CXF. Default is true to enable reproducible builds and to work with the build cache. |
+| markGenerated         | Provider\<Boolean>    | "no"                                                                                | Adds the @Generated annotation to the generated sources. See below for details as there are some gotchas with this. |                                                              |
+| options               | ListProperty\<String> | \[empty\]                                                                            | Additional options to pass to the tool. See [here](https://cxf.apache.org/docs/wsdl-to-java.html) for details.      |
 
 
 ### Configure the CXF version
@@ -116,7 +117,6 @@ wsdl2java {
 ```
 
 ```xml
-<!-- bindings.xml -->
 <bindings xmlns="http://java.sun.com/xml/ns/jaxb" version="2.1"
           xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc">
     <globalBindings>
@@ -142,6 +142,36 @@ If this is the case for you, and you want to use UTF-8, you could export an envi
 
 ```shell script
 export LANG=C.UTF-8
+```
+
+### Enabling the use of the @Generated annotation
+CXF (and the underlying XJC tool) can add a `@Generated` annotation to the generated source code.
+This is a source annotation useful for marking classes as generated by a tool.
+It can also be used by some static code analytic tools to skip these classes.
+Note that it is a source code annotation and thus won't work with tools that work with byte code.
+
+While very useful in theory, there are some gotchas with this annotation.
+The main one is that here are actually two @Generated annotations.
+The first is 'javax.annotation.Generated' and is available in the JDK up til and including Java 8.
+The second is 'javax.annotation.processing.Generated' and is available in the JDK from Java 9.
+If your project is using Java 8, you will want to use the former.
+However, if you are on Java 9 or later, you may still want to use the former if the tools you use only supports that one.
+In that case, you can include the annotation class as a dependency.
+
+To support these different use cases, you can chose which annotation to use with the `markGenerated` property.
+Supported values are: `no`, `yes-jdk8` and `yes-jdk9`.
+Example:
+
+```kotlin
+dependencies {
+    // The dependency below is only needed if using the Java 8 version of @Generated (through "yes-jdk8") on Java 9 or later
+    // If using "yes-jdk9", it is unnecessary
+    implementation("javax.annotation:javax.annotation-api:1.3.2")
+}
+
+wsdl2java {
+    markGenerated.set("yes-jdk8")
+}
 ```
 
 ## Other
