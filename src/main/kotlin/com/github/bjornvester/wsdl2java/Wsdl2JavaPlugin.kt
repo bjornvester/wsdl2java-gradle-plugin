@@ -11,7 +11,7 @@ import org.gradle.util.GradleVersion
 @Suppress("unused")
 class Wsdl2JavaPlugin : Plugin<Project> {
     companion object {
-        const val MINIMUM_GRADLE_VERSION = "5.4"
+        const val MINIMUM_GRADLE_VERSION = "6.0"
         const val PLUGIN_ID = "com.github.bjornvester.wsdl2java"
         const val WSDL2JAVA_TASK_NAME = "wsdl2java"
         const val WSDL2JAVA_EXTENSION_NAME = "wsdl2java"

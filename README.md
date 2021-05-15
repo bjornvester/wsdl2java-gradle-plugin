@@ -2,7 +2,7 @@
 A Gradle plugin for generating Java classes from WSDL files through CXF.
 
 ## Requirements, features and limitations
-* The plugin requires Gradle 5.4 or later. (Tested with Gradle 5.4 and 7.0.)
+* The plugin requires Gradle 6.0 or later. (Tested with Gradle 6.0 and 7.0.)
 * It has been tested with Java 8, 11 and 16. It does not (yet) support running it with a custom toolchain.
 * It supports the Gradle build cache (enabled by setting "org.gradle.caching=true" in your gradle.properties file).
 * It supports project relocation for the build cache (e.g. you move your project to a new path, or make a new copy/clone of it).

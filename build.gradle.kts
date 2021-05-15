@@ -14,6 +14,12 @@ repositories {
 }
 
 tasks.withType<Test>().configureEach {
+    inputs
+        .files(layout.projectDirectory.dir("integration-test").asFileTree.matching {
+            exclude("**/build/**")
+            exclude("**/gradle/**")
+        })
+        .withPathSensitivity(PathSensitivity.RELATIVE)
     useJUnitPlatform()
     systemProperty("GRADLE_ROOT_FOLDER", projectDir.absolutePath)
     systemProperty("GRADLE_PLUGIN_VERSION", version)
@@ -56,8 +62,9 @@ pluginBundle {
     (plugins) {
         "wsdl2JavaPlugin" {
             displayName = "Gradle Wsdl2Java plugin"
-            description = "Changes: \n" +
-                    "- New configuration options added, including the ability to specify a binding file"
+            description = "Changes:\n" +
+                    "  - New configuration options added, including the ability to specify a binding file\n" +
+                    "  - Minimum version is now 6.0 (previously 5.4) due to internal use of new APIs"
             tags = listOf("wsdl2java", "cxf", "wsimport")
         }
     }
