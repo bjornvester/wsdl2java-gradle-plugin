@@ -1,20 +1,20 @@
 # wsdl2java-gradle-plugin
 A Gradle plugin for generating Java classes from WSDL files through CXF.
 
-## Requirements and limitations
-The plugin currently requires Gradle 5.4 or later. (Tested with Gradle 5.4 and 7.0.)
-
-It has been tested with Java 8, 11 and 16.
-
-It is currently not possible to customize the CXF code generation tool.
-This will be implemented later.
+## Requirements, features and limitations
+* The plugin requires Gradle 5.4 or later. (Tested with Gradle 5.4 and 7.0.)
+* It has been tested with Java 8, 11 and 16. It does not (yet) support running it with a custom toolchain.
+* It supports the Gradle build cache (enabled by setting "org.gradle.caching=true" in your gradle.properties file).
+* It supports project relocation for the build cache (e.g. you move your project to a new path, or make a new copy/clone of it).
+  This is especially useful in a CI context, where you might clone PRs and/or branches for a repository in their own locations.
+* It supports parallel execution (enabled with "org.gradle.parallel=true", possibly along with "org.gradle.priority=low", in your gradle.properties file).
 
 ## Configuration
 Apply the plugin ID "com.github.bjornvester.wsdl2java" as specific in the [Gradle Plugin portal page](https://plugins.gradle.org/plugin/com.github.bjornvester.wsdl2java), e.g. like this:
 
 ```kotlin
 plugins {
-    id("com.github.bjornvester.wsdl2java") version "0.4"
+    id("com.github.bjornvester.wsdl2java") version "1.0-snapshot"
 }
 ```
 
@@ -22,6 +22,28 @@ Put your WSDL and referenced XSD files somewhere in your src/main/resource direc
 By default, the plugin will create Java classes for all the WSDL files in the resource directory.
 
 The generated code will by default end up in the directory build/generated/wsdl2java folder.
+
+You can configure the plugin using the "wsdl2java" extension like this:
+
+```kotlin
+wsdl2java {
+    // Set properties here...
+}
+``` 
+
+Here is a list of all available properties:
+
+| Property              | Type                  | Default                                                                              | Description                                                                                                        |
+|-----------------------|-----------------------|--------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| wsdlDir               | DirectoryProperty     | "$projectDir/src<br>/main/resources"                                                 | The directory holding the xsd files to compile.                                                                    |
+| wsdlFiles             | FileCollection        | wsdlDir<br>&nbsp;&nbsp;.asFileTree<br>&nbsp;&nbsp;.matching { include("**/*.wsdl") } | The schemas to compile.<br>If empty, all files in the xsdDir will be compiled.                                     |
+| generatedSourceDir    | DirectoryProperty     | "$buildDir/generated<br>/sources/wsdl2java/java"                                     | The output directory for the generated Java sources.<br>Note that it will be deleted when running XJC.             |
+| bindingFile           | RegularFileProperty   | \[not set\]                                                                          | A binding file to use in the schema compiler                                                                       |
+| cxfVersion            | Provider\<String>     | "3.4.3"                                                                              | The version of CXF to use.                                                                                         |
+| verbose               | Provider\<Boolean>    | true                                                                                 | Enables verbose output from CXF.                                                                                   |
+| suppressGeneratedDate | Provider\<Boolean>    | true                                                                                 | Supresses generating dates in CXF. Default is true to enable reproducible builds and to work with the build cache. |
+| options               | ListProperty\<String> | \[empty\]                                                                            | Additional options to pass to the tool. See [here](https://cxf.apache.org/docs/wsdl-to-java.html) for details.     |
+
 
 ### Configure the CXF version
 You can specify the version of CXF used for code generation like this:
@@ -35,10 +57,10 @@ wsdl2java {
 ### Configure directories
 You can optionally specify WSDL and generated source directories like this:
 
-```groovy
+```kotlin
 wsdl2java {
-    generatedSourceDir = file("${projectDir}/src/main/service")
-    wsdlDir = file("${projectDir}/src/main/resources")
+    generatedSourceDir.set(layout.projectDirectory.file("src/generated/wsdl2java"))
+    wsdlDir.set(layout.projectDirectory.dir("src/main/resources"))
 }
 ```
 
@@ -46,13 +68,24 @@ Note that the `generatedSourceDir` will be wiped completely on each run, so don'
 
 The `wsdlDir` is only used for up-to-date checking. It must contain all resources used by the WSDLs (e.g. included XSDs as well).
 
+By default, the plugin will find all WSDL files in the `wsdlDir` directory.
+To specify other files, you can use the `wsdlFiles` property.
+This is a `ConfigurableFileCollection` and can be configured like this:
+
+```kotlin
+wsdlFiles.setFrom(
+    "src/main/resources/HelloWorldAbstractService.wsdl",
+    "src/main/resources/nested/HelloWorldNestedService.wsdl"
+)
+```
+
 ### Configure binding files
 
 A binding file can be added like this:
 
-```groovy
+```kotlin
 wsdl2java {
-    bindingFile = "${projectDir}/src/main/bindings/binding.xjb"
+    bindingFile.set(layout.projectDirectory.file("src/main/bindings/binding.xjb"))
 }
 ```
 
@@ -72,14 +105,13 @@ If you get a warning on maximum enum member size, you can raise the maximum like
 
 If you like to use the Java Date/Time API instead of the more clunky GregorianCalendar class, you can use `threeten-jaxb` library with a binding file like this:
 
-```groovy
-// build.gradle
+```kotlin
 dependencies {
     implementation("io.github.threeten-jaxb:threeten-jaxb-core:1.2")
 }
 
 wsdl2java {
-    bindingFile.set("$projectDir/src/main/bindings/bindings.xml")
+    bindingFile.set(layout.projectDirectory.file("src/main/bindings/bindings.xjb"))
 }
 ```
 
@@ -101,6 +133,15 @@ If your WSDL files include non-ANSI characters, you should set the corresponding
 
 ```properties
 org.gradle.jvmargs=-Dfile.encoding=UTF-8
+```
+
+If you are on a POSIX operating system (e.g. Linux), you may in addition to this need to set your operating system locale to one that supports your encoding.
+Otherwise, Java (and therefore also Gradle and CXF) may not be able to create files with names outside of what your default locale supports.
+Especially some Docker images, like the Java ECR images from AWS, are by default set to a locale supporting ASCII only.
+If this is the case for you, and you want to use UTF-8, you could export an environment variable like this:
+
+```shell script
+export LANG=C.UTF-8
 ```
 
 ## Other

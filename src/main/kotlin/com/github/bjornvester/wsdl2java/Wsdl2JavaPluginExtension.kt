@@ -7,7 +7,10 @@ import javax.inject.Inject
 open class Wsdl2JavaPluginExtension @Inject constructor(objects: ObjectFactory, layout: ProjectLayout) {
     val wsdlDir = objects.directoryProperty().convention(layout.projectDirectory.dir("src/main/resources"))
     val wsdlFiles = objects.fileCollection().from(wsdlDir.asFileTree.matching { include("**/*.wsdl") })
-    val bindingFile = objects.property(String::class.java).convention("")
-    val generatedSourceDir = objects.directoryProperty().convention(layout.buildDirectory.dir("generated/wsdl2java"))
+    val bindingFile = objects.fileProperty()
+    val generatedSourceDir = objects.directoryProperty().convention(layout.buildDirectory.dir("generated/sources/wsdl2java"))
     val cxfVersion = objects.property(String::class.java).convention("3.4.3")
+    val options = objects.listProperty(String::class.java)
+    val verbose = objects.property(Boolean::class.java).convention(true)
+    val suppressGeneratedDate = objects.property(Boolean::class.java).convention(true)
 }

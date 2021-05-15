@@ -8,5 +8,5 @@ dependencies {
 }
 
 wsdl2java {
-    bindingFile.set("$projectDir/src/main/bindings/bindings.xml")
+    bindingFile.set(layout.projectDirectory.file("src/main/bindings/bindings.xml"))
 }

@@ -57,7 +57,7 @@ pluginBundle {
         "wsdl2JavaPlugin" {
             displayName = "Gradle Wsdl2Java plugin"
             description = "Changes: \n" +
-                    "- TODO"
+                    "- New configuration options added, including the ability to specify a binding file"
             tags = listOf("wsdl2java", "cxf", "wsimport")
         }
     }
