@@ -61,7 +61,9 @@ To specify other files, you can use the `includes` property.
 Example:
 
 ```kotlin
-wsdlDir.set(layout.projectDirectory.file("src/main/wsdl")) // Only if different from the default 'src/main/resources'
+// Only if different from the default 'src/main/resources'
+wsdlDir.set(layout.projectDirectory.dir("src/main/wsdl"))
+
 includes.set(
     listOf( // Kotlin method. For the Groovy DSL, use ["one.wsdl", "two.wsdl"] instead
         "src/main/wsdls/MyFirstService.wsdl",
@@ -71,18 +73,18 @@ includes.set(
 ```
 
 ### Configure the output directory
-You can optionally specify the directory for the generated source like this:
+You can optionally specify the directory for the generated source through the `generatedSourceDir` property, which defaults to `buildDir/generated/sources/wsdl2java/java`.
+Example:
 
 ```kotlin
 wsdl2java {
-    generatedSourceDir.set(layout.projectDirectory.file("src/generated/wsdl2java"))
+    generatedSourceDir.set(layout.projectDirectory.dir("src/generated/wsdl2java"))
 }
 ```
 
-Note that the `generatedSourceDir` will be wiped completely on each run, so don't put other source files in it.
+Note that the directory will be wiped completely on each run, so don't put other source files in it.
 
 ### Configure binding files
-
 A binding file can be added like this:
 
 ```kotlin
