@@ -57,12 +57,17 @@ wsdl2java {
 
 ### Configure included WSDL files
 By default, the plugin will find all WSDL files in the `wsdlDir` directory, which defaults to `src/main/resources`.
-To specify other files, you can use the `includes` property.
+It is important that if you change this, you change it to a folder that contain all resouces (e.g. both WSDL and XSDs).
+Otherwise, if you make changes to files outside this folder, Gradle will not see them and thus might consider the task up-to-date.
+Still, if you have other resources than WSDL and XDSs, you may want to put them in a subfolder like `src/main/resources/wsdl` and change the `wsdlDir` property accordingly.
+This will prevent the task from re-running if you make changes to other files in the resource folder not relevant to input.
+
+If you have multiple WSDL files and want to only run the tool on some of them, you can use the `includes` property.
 Example:
 
 ```kotlin
 // Only if different from the default 'src/main/resources'
-wsdlDir.set(layout.projectDirectory.dir("src/main/wsdl"))
+wsdlDir.set(layout.projectDirectory.dir("src/main/resources/wsdl"))
 
 includes.set(
     listOf( // Kotlin method. For the Groovy DSL, use ["one.wsdl", "two.wsdl"] instead
@@ -178,7 +183,7 @@ wsdl2java {
 ```
 
 ## Other
-Note that the plugin will add the following two dependencies to your `implementation` configuration:
+The plugin will add the following two dependencies to your `implementation` configuration:
 
 ```
 jakarta.xml.ws:jakarta.xml.ws-api:2.3.3
@@ -186,8 +191,14 @@ jakarta.jws:jakarta.jws-api:1.1.1
 ```
 
 These are required to compile the generated code.
-However, depending on your runtime platform, you may want to exclude them and instead either put them in the "compileOnly" configuration, or use whatever libraries that are provided by the platform.
+However, depending on your runtime platform, you may want to exclude them and instead either put them in the `compileOnly` configuration, or use whatever libraries that are provided by the platform.
 
 There are full examples available in the integration-test directory.
 
-If you need to compile additional XMl schemas (xsd files) not directly referenced by the wsdl files, you can use the [com.github.bjornvester.xjc](https://plugins.gradle.org/plugin/com.github.bjornvester.xjc) plugin in addition.
+If you need to compile additional XML schemas (xsd files) not directly referenced by the wsdl files, you can use the [com.github.bjornvester.xjc](https://plugins.gradle.org/plugin/com.github.bjornvester.xjc) plugin in addition.
+
+## Limitations
+The CXF tool will overwrite generated classes from multiple WSDL files if they have the same qualified name.
+Especially the `ObjectFactory` might be overwritten, which is annoying.
+There is a similar plugin [here](https://github.com/nilsmagnus/wsdl2java) that merges them together, but it is deprecated.
+I hope to port that functionality into this plugin at some point.
