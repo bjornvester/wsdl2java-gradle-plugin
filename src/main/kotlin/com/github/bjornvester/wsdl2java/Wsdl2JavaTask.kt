@@ -24,10 +24,8 @@ open class Wsdl2JavaTask @Inject constructor(
     @get:PathSensitive(PathSensitivity.RELATIVE)
     val wsdlInputDir = objects.directoryProperty().convention(getWsdl2JavaExtension().wsdlDir)
 
-    @get:InputFiles
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    @Optional
-    val wsdlFiles = objects.fileCollection().from(getWsdl2JavaExtension().wsdlFiles)
+    @get:Input
+    val includes = objects.listProperty(String::class.java).convention(getWsdl2JavaExtension().includes)
 
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -71,34 +69,40 @@ open class Wsdl2JavaTask @Inject constructor(
         }
 
         val defaultArgs = buildDefaultArguments()
+        val wsdlToArgs = mutableMapOf<String, List<String>>()
 
-        wsdlFiles.forEach { wsdlFile ->
-            val computedArgs = mutableListOf<String>()
-            computedArgs.addAll(defaultArgs)
+        wsdlInputDir
+            .asFileTree
+            .matching { include(this@Wsdl2JavaTask.includes.get()) }
+            .forEach { wsdlFile ->
+                val computedArgs = mutableListOf<String>()
+                computedArgs.addAll(defaultArgs)
 
-            if (!computedArgs.contains("-wsdlLocation")) {
-                computedArgs.addAll(
-                    listOf(
-                        "-wsdlLocation",
-                        wsdlFile.relativeTo(wsdlInputDir.asFile.get()).invariantSeparatorsPath
+                if (!computedArgs.contains("-wsdlLocation")) {
+                    computedArgs.addAll(
+                        listOf(
+                            "-wsdlLocation",
+                            wsdlFile.relativeTo(wsdlInputDir.asFile.get()).invariantSeparatorsPath
+                        )
                     )
-                )
+                }
+
+                computedArgs.add(wsdlFile.path)
+                wsdlToArgs[wsdlFile.path] = computedArgs
             }
 
-            computedArgs.add(wsdlFile.path)
-
-            workerExecutor.submit(Wsdl2JavaWorker::class.java) {
-                args = computedArgs.toTypedArray()
-                outputDir = sourcesOutputDir.get()
-                switchGeneratedAnnotation = (markGenerated.get() == MARK_GENERATED_YES_JDK9)
-                removeDateFromGeneratedAnnotation =
-                    (markGenerated.get() in listOf(
-                        MARK_GENERATED_YES_JDK8,
-                        MARK_GENERATED_YES_JDK9
-                    )) && suppressGeneratedDate.get()
-            }
+        // Note that we don't run the CXF tool on each WSDL file as the build might be configured with parallel execution
+        // This could be a problem if multiple WSDLs references the same schemas as CXF might try and write to the same files
+        workerExecutor.submit(Wsdl2JavaWorker::class.java) {
+            this.wsdlToArgs = wsdlToArgs
+            outputDir = sourcesOutputDir.get()
+            switchGeneratedAnnotation = (markGenerated.get() == MARK_GENERATED_YES_JDK9)
+            removeDateFromGeneratedAnnotation =
+                (markGenerated.get() in listOf(
+                    MARK_GENERATED_YES_JDK8,
+                    MARK_GENERATED_YES_JDK9
+                )) && suppressGeneratedDate.get()
         }
-
     }
 
     private fun buildDefaultArguments(): MutableList<String> {

@@ -6,7 +6,7 @@ import javax.inject.Inject
 
 open class Wsdl2JavaPluginExtension @Inject constructor(objects: ObjectFactory, layout: ProjectLayout) {
     val wsdlDir = objects.directoryProperty().convention(layout.projectDirectory.dir("src/main/resources"))
-    val wsdlFiles = objects.fileCollection().from(wsdlDir.asFileTree.matching { include("**/*.wsdl") })
+    val includes = objects.listProperty(String::class.java).convention(listOf("**/*.wsdl"))
     val bindingFile = objects.fileProperty()
     val generatedSourceDir = objects.directoryProperty().convention(layout.buildDirectory.dir("generated/sources/wsdl2java"))
     val cxfVersion = objects.property(String::class.java).convention("3.4.3")
@@ -16,8 +16,13 @@ open class Wsdl2JavaPluginExtension @Inject constructor(objects: ObjectFactory, 
     val markGenerated = objects.property(String::class.java).convention(MARK_GENERATED_NO)
 
     companion object {
-        @JvmStatic val MARK_GENERATED_NO = "no"
-        @JvmStatic val MARK_GENERATED_YES_JDK8 = "yes-jdk8"
-        @JvmStatic val MARK_GENERATED_YES_JDK9 = "yes-jdk9"
+        @JvmStatic
+        val MARK_GENERATED_NO = "no"
+
+        @JvmStatic
+        val MARK_GENERATED_YES_JDK8 = "yes-jdk8"
+
+        @JvmStatic
+        val MARK_GENERATED_YES_JDK9 = "yes-jdk9"
     }
 }

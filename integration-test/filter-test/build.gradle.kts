@@ -4,8 +4,11 @@ plugins {
 }
 
 wsdl2java {
-    wsdlFiles.setFrom(
-        "src/main/resources/HelloWorldAbstractService.wsdl",
-        "src/main/resources/nested/HelloWorldNestedService.wsdl"
+    wsdlDir.set(layout.projectDirectory.dir("src/main/wsdl"))
+    includes.set(
+        listOf(
+            "HelloWorldAbstractService.wsdl",
+            "nested/HelloWorldNestedService.wsdl"
+        )
     )
 }

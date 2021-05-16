@@ -7,8 +7,6 @@ import org.gradle.api.tasks.SourceSet.MAIN_SOURCE_SET_NAME
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.util.GradleVersion
 
-
-@Suppress("unused")
 class Wsdl2JavaPlugin : Plugin<Project> {
     companion object {
         const val MINIMUM_GRADLE_VERSION = "6.0"
@@ -53,9 +51,10 @@ class Wsdl2JavaPlugin : Plugin<Project> {
 
     private fun verifyGradleVersion() {
         if (GradleVersion.current() < GradleVersion.version(MINIMUM_GRADLE_VERSION)) {
-            throw UnsupportedOperationException("Plugin $PLUGIN_ID requires at least Gradle $MINIMUM_GRADLE_VERSION, " +
-                    "but you are using ${GradleVersion.current().version}")
+            throw UnsupportedOperationException(
+                "Plugin $PLUGIN_ID requires at least Gradle $MINIMUM_GRADLE_VERSION, " +
+                        "but you are using ${GradleVersion.current().version}"
+            )
         }
     }
-
 }
