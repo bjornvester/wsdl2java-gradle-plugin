@@ -1,7 +1,7 @@
 # wsdl2java-gradle-plugin
 A Gradle plugin for generating Java classes from WSDL files through CXF.
 
-## Requirements, features and limitations
+## Requirements and main features
 * The plugin requires Gradle 6.0 or later. (Tested with Gradle 6.0 and 7.0.)
 * It has been tested with Java 8, 11 and 16. It does not (yet) support running it with a custom toolchain.
 * It supports the Gradle build cache (enabled by setting "org.gradle.caching=true" in your gradle.properties file).
@@ -55,33 +55,31 @@ wsdl2java {
 }
 ```
 
-### Configure directories
-You can optionally specify WSDL and generated source directories like this:
-
-```kotlin
-wsdl2java {
-    generatedSourceDir.set(layout.projectDirectory.file("src/generated/wsdl2java"))
-    wsdlDir.set(layout.projectDirectory.dir("src/main/wsdl"))
-}
-```
-
-Note that the `generatedSourceDir` will be wiped completely on each run, so don't put other source files in it.
-
-The `wsdlDir` is only used for up-to-date checking. It must contain all resources used by the WSDLs (e.g. included XSDs as well).
-
-By default, the plugin will find all WSDL files in the `wsdlDir` directory.
+### Configure included WSDL files
+By default, the plugin will find all WSDL files in the `wsdlDir` directory, which defaults to `src/main/resources`.
 To specify other files, you can use the `includes` property.
 Example:
 
 ```kotlin
 wsdlDir.set(layout.projectDirectory.file("src/main/wsdl")) // Only if different from the default 'src/main/resources'
-wsdlFiles.set(
+includes.set(
     listOf( // Kotlin method. For the Groovy DSL, use ["one.wsdl", "two.wsdl"] instead
         "src/main/wsdls/MyFirstService.wsdl",
         "src/main/wsdls/MySecondService.wsdl"
     ) 
 )
 ```
+
+### Configure the output directory
+You can optionally specify the directory for the generated source like this:
+
+```kotlin
+wsdl2java {
+    generatedSourceDir.set(layout.projectDirectory.file("src/generated/wsdl2java"))
+}
+```
+
+Note that the `generatedSourceDir` will be wiped completely on each run, so don't put other source files in it.
 
 ### Configure binding files
 
