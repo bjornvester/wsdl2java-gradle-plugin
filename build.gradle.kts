@@ -1,23 +1,48 @@
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile
+
 plugins {
-    kotlin("jvm") version "1.3.50"
+    `kotlin-dsl`
     id("java-gradle-plugin")
-    id("com.gradle.plugin-publish") version "0.10.1"
+    id("com.gradle.plugin-publish") version "0.14.0"
 }
 
 group = "com.github.bjornvester"
-version = "0.4"
+version = "1.0"
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
-dependencies {
-    implementation(kotlin("stdlib-jdk8"))
+tasks.withType<Test>().configureEach {
+    inputs
+        .files(layout.projectDirectory.dir("integration-test").asFileTree.matching {
+            exclude("**/build/**")
+            exclude("**/gradle/**")
+        })
+        .withPathSensitivity(PathSensitivity.RELATIVE)
+    useJUnitPlatform()
+    systemProperty("GRADLE_ROOT_FOLDER", projectDir.absolutePath)
+    systemProperty("GRADLE_PLUGIN_VERSION", version)
 }
 
 tasks.withType<Wrapper> {
-    distributionType = Wrapper.DistributionType.ALL
-    gradleVersion = "5.6.3"
+    gradleVersion = "7.0.1"
+}
+
+dependencies {
+    compileOnly("org.apache.cxf:cxf-tools-wsdlto-core:3.4.3")
+    testImplementation("commons-io:commons-io:2.8.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-params")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+}
+
+val compiler = javaToolchains.compilerFor {
+    languageVersion.set(JavaLanguageVersion.of(8))
+}
+
+tasks.withType<KotlinJvmCompile>().configureEach {
+    kotlinOptions.jdkHome = compiler.get().metadata.installationPath.asFile.absolutePath
 }
 
 gradlePlugin {
@@ -37,8 +62,9 @@ pluginBundle {
     (plugins) {
         "wsdl2JavaPlugin" {
             displayName = "Gradle Wsdl2Java plugin"
-            description = "Changes: \n" +
-                    "- Make the extension properties immutable. This gets rid of a deprecation warning in Gradle 6.0."
+            description = "Changes:\n" +
+                    "  - New configuration options added, including the ability to specify a binding file\n" +
+                    "  - Minimum version is now 6.0 (previously 5.4) due to internal use of new APIs"
             tags = listOf("wsdl2java", "cxf", "wsimport")
         }
     }

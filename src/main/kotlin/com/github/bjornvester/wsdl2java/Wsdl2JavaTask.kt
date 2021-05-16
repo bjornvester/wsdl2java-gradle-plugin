@@ -2,75 +2,158 @@ package com.github.bjornvester.wsdl2java
 
 import com.github.bjornvester.wsdl2java.Wsdl2JavaPlugin.Companion.WSDL2JAVA_CONFIGURATION_NAME
 import com.github.bjornvester.wsdl2java.Wsdl2JavaPlugin.Companion.WSDL2JAVA_EXTENSION_NAME
+import com.github.bjornvester.wsdl2java.Wsdl2JavaPluginExtension.Companion.MARK_GENERATED_YES_JDK8
+import com.github.bjornvester.wsdl2java.Wsdl2JavaPluginExtension.Companion.MARK_GENERATED_YES_JDK9
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
-import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.internal.file.FileOperations
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.tasks.*
-import java.net.URLClassLoader
+import org.gradle.workers.WorkerExecutor
+import javax.inject.Inject
 
 @CacheableTask
-open class Wsdl2JavaTask : DefaultTask() {
+open class Wsdl2JavaTask @Inject constructor(
+    private val workerExecutor: WorkerExecutor,
+    private val fileOperations: FileOperations,
+    objects: ObjectFactory
+) : DefaultTask() {
     @get:InputDirectory
     @get:PathSensitive(PathSensitivity.RELATIVE)
-    var wsdlInputDir: DirectoryProperty = getWsdl2JavaExtension().wsdlDir
+    val wsdlInputDir = objects.directoryProperty().convention(getWsdl2JavaExtension().wsdlDir)
 
-    @get:InputFiles
+    @get:Input
+    val includes = objects.listProperty(String::class.java).convention(getWsdl2JavaExtension().includes)
+
+    @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     @Optional
-    var wsdlFiles: ConfigurableFileCollection = getWsdl2JavaExtension().wsdlFiles
+    val bindingFile = objects.fileProperty().convention(getWsdl2JavaExtension().bindingFile)
+
+    @get:Input
+    @Optional
+    val options = objects.listProperty(String::class.java).convention(getWsdl2JavaExtension().options)
+
+    @get:Input
+    val verbose = objects.property(Boolean::class.java).convention(getWsdl2JavaExtension().verbose)
+
+    @get:Input
+    val suppressGeneratedDate = objects.property(Boolean::class.java).convention(getWsdl2JavaExtension().suppressGeneratedDate)
+
+    @get:Input
+    @Optional
+    val markGenerated = objects.property(String::class.java).convention(getWsdl2JavaExtension().markGenerated)
+
+    @get:Classpath
+    val wsdl2JavaConfiguration = project.configurations.named(WSDL2JAVA_CONFIGURATION_NAME)
 
     @get:OutputDirectory
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    var sourcesOutputDir: DirectoryProperty = getWsdl2JavaExtension().generatedSourceDir
+    val sourcesOutputDir: DirectoryProperty = objects.directoryProperty().convention(getWsdl2JavaExtension().generatedSourceDir)
 
     init {
         group = BasePlugin.BUILD_GROUP
         description = "Generates Java classes from WSDL files."
-        dependsOn(project.configurations.named(WSDL2JAVA_CONFIGURATION_NAME))
     }
 
     @TaskAction
     fun doCodeGeneration() {
-        project.delete(sourcesOutputDir)
+        validateOptions()
 
-        val computedWsdlFiles = when {
-            !wsdlFiles.isEmpty -> wsdlFiles.iterator()
-            else -> wsdlInputDir.asFileTree.matching {
-                it.include("**/*.wsdl")
-            }.files.ifEmpty { throw GradleException("Could not find any WSDL files to import") }.iterator()
+        fileOperations.delete(sourcesOutputDir)
+        fileOperations.mkdir(sourcesOutputDir)
+
+        val workerExecutor = workerExecutor.classLoaderIsolation {
+            classpath.from(wsdl2JavaConfiguration)
         }
 
-        var dependentFiles = project.configurations.named(WSDL2JAVA_CONFIGURATION_NAME).get().resolve()
-        project.logger.debug("Loading JAR files: $dependentFiles")
+        val defaultArgs = buildDefaultArguments()
+        val wsdlToArgs = mutableMapOf<String, List<String>>()
 
-        val originalClassLoader = Thread.currentThread().contextClassLoader
-        URLClassLoader(dependentFiles.map { it.toURI().toURL() }.toTypedArray()).use { classLoader ->
-            val wsdlToJavaClass = classLoader.loadClass("org.apache.cxf.tools.wsdlto.WSDLToJava")
-            val toolContextClass = classLoader.loadClass("org.apache.cxf.tools.common.ToolContext")
-            Thread.currentThread().setContextClassLoader(classLoader)
-            try {
-                computedWsdlFiles.forEach { wsdlFile ->
-                    project.logger.info("Importing file ${wsdlFile.absolutePath}")
+        wsdlInputDir
+            .asFileTree
+            .matching { include(this@Wsdl2JavaTask.includes.get()) }
+            .forEach { wsdlFile ->
+                val computedArgs = mutableListOf<String>()
+                computedArgs.addAll(defaultArgs)
 
-                    val args = arrayOf(
-                            "-verbose",
+                if (!computedArgs.contains("-wsdlLocation")) {
+                    computedArgs.addAll(
+                        listOf(
                             "-wsdlLocation",
-                            wsdlFile.relativeTo(wsdlInputDir.asFile.get()).invariantSeparatorsPath,
-                            "-suppress-generated-date",
-                            "-autoNameResolution",
-                            "-d",
-                            sourcesOutputDir.get().toString(),
-                            wsdlFile.path
+                            wsdlFile.relativeTo(wsdlInputDir.asFile.get()).invariantSeparatorsPath
+                        )
                     )
-
-                    val toolContext = toolContextClass.newInstance()
-                    val wsdlToJava = wsdlToJavaClass.getConstructor(Array<String>::class.java).newInstance(args)
-                    wsdlToJavaClass.getMethod("run", toolContextClass).invoke(wsdlToJava, toolContext)
                 }
-            } finally {
-                Thread.currentThread().setContextClassLoader(originalClassLoader)
+
+                computedArgs.add(wsdlFile.path)
+                wsdlToArgs[wsdlFile.path] = computedArgs
+            }
+
+        // Note that we don't run the CXF tool on each WSDL file as the build might be configured with parallel execution
+        // This could be a problem if multiple WSDLs references the same schemas as CXF might try and write to the same files
+        workerExecutor.submit(Wsdl2JavaWorker::class.java) {
+            this.wsdlToArgs = wsdlToArgs
+            outputDir = sourcesOutputDir.get()
+            switchGeneratedAnnotation = (markGenerated.get() == MARK_GENERATED_YES_JDK9)
+            removeDateFromGeneratedAnnotation =
+                (markGenerated.get() in listOf(
+                    MARK_GENERATED_YES_JDK8,
+                    MARK_GENERATED_YES_JDK9
+                )) && suppressGeneratedDate.get()
+        }
+    }
+
+    private fun buildDefaultArguments(): MutableList<String> {
+        val defaultArgs = mutableListOf(
+            "-autoNameResolution",
+            "-d",
+            sourcesOutputDir.get().toString()
+        )
+
+        if (suppressGeneratedDate.get()) {
+            defaultArgs.add("-suppress-generated-date")
+        }
+
+        if (markGenerated.get() in listOf(MARK_GENERATED_YES_JDK8, MARK_GENERATED_YES_JDK9)) {
+            defaultArgs.add("-mark-generated")
+        }
+
+        if (verbose.get()) {
+            defaultArgs.add("-verbose")
+        }
+
+        if (bindingFile.isPresent) {
+            defaultArgs.addAll(
+                listOf(
+                    "-b",
+                    bindingFile.get().asFile.absolutePath
+                )
+            )
+        }
+
+        if (options.isPresent) {
+            defaultArgs.addAll(options.get())
+        }
+        return defaultArgs
+    }
+
+    private fun validateOptions() {
+        if (options.isPresent) {
+            val prohibitedOptions = mapOf(
+                "-verbose" to "Configured through the 'verbose' property",
+                "-d" to "Configured through the 'generatedSourceDir' property",
+                "-b" to "Configured through the 'bindingFile' property",
+                "-suppress-generated-date" to "Configured through the 'suppressGeneratedDate' property",
+                "-mark-generated" to "Configured through the 'markGenerated' property",
+                "-autoNameResolution" to "Configured automatically and cannot currently be overridden"
+            )
+
+            options.get().forEach { option ->
+                if (prohibitedOptions.containsKey(option)) {
+                    throw GradleException("the option '$option' is not allowed in this plugin. Reason: ${prohibitedOptions[option]}")
+                }
             }
         }
     }

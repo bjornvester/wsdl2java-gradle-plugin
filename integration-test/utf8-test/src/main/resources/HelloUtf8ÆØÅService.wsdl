@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<wsdl:definitions name="Utf8TestÆØÅService"
+                  targetNamespace="http://github.com/bjornvester"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:tns="http://github.com/bjornvester"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+    <wsdl:types>
+        <xs:schema targetNamespace="http://github.com/bjornvester"
+                   xmlns="http://github.com/bjornvester"
+                   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+            <xs:complexType name="requestÆØÅ">
+                <xs:sequence>
+                    <xs:element name="arg0" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="responseÆØÅ">
+                <xs:sequence>
+                    <xs:element name="return" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="requestÆØÅ" nillable="true" type="requestÆØÅ"/>
+            <xs:element name="responseÆØÅ" nillable="true" type="responseÆØÅ"/>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="requestÆØÅ">
+        <wsdl:part element="tns:requestÆØÅ" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="responseÆØÅ">
+        <wsdl:part element="tns:responseÆØÅ" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:portType name="HelloUtf8ÆØÅPortType">
+        <wsdl:operation name="utf8OperationWithCharsÆØÅ">
+            <wsdl:input message="tns:requestÆØÅ" name="requestÆØÅ">
+            </wsdl:input>
+            <wsdl:output message="tns:responseÆØÅ" name="responseÆØÅ">
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="HelloUtf8ÆØÅServiceSoapBinding" type="tns:HelloUtf8ÆØÅPortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="utf8OperationWithCharsÆØÅ">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="requestÆØÅ">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="responseÆØÅ">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="HelloUtf8ÆØÅService">
+        <wsdl:port name="HelloUtf8ÆØÅPort" binding="tns:HelloUtf8ÆØÅServiceSoapBinding">
+            <soap:address location="http://localhost:8080/MyCXFWebService/services/HelloUtf8ÆØÅPort"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>
