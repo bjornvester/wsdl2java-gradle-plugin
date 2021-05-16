@@ -14,7 +14,7 @@ Apply the plugin ID "com.github.bjornvester.wsdl2java" as specific in the [Gradl
 
 ```kotlin
 plugins {
-    id("com.github.bjornvester.wsdl2java") version "1.0"
+    id("com.github.bjornvester.wsdl2java") version "1.1"
 }
 ```
 
@@ -182,6 +182,23 @@ wsdl2java {
 }
 ```
 
+### Activating (third party) XJC plugins
+To use third party plugins for the underlying XJC tool, supply the relevant dependencies to the `xjcPlugins` configuration.
+Then set the plugin options through the `options` property.
+
+For example, to use the "Equals" and "Hashcode" plugin from the [JAXB2 Basics](https://github.com/highsource/jaxb2-basics) project, configure the following:
+
+```kotlin
+dependencies {
+  implementation("org.jvnet.jaxb2_commons:jaxb2-basics-runtime:1.11.1")
+  xjcPlugins("org.jvnet.jaxb2_commons:jaxb2-basics:1.11.1")
+}
+
+wsdl2java {
+  options.addAll("-xjc-Xequals", "-xjc-XhashCode")
+}
+```
+
 ## Other
 The plugin will add the following two dependencies to your `implementation` configuration:
 
@@ -200,5 +217,5 @@ If you need to compile additional XML schemas (xsd files) not directly reference
 ## Limitations
 The CXF tool will overwrite generated classes from multiple WSDL files if they have the same qualified name.
 Especially the `ObjectFactory` might be overwritten, which is annoying.
-There is a similar plugin [here](https://github.com/nilsmagnus/wsdl2java) that merges them together, but it is deprecated.
+There is a similar plugin [here](https://github.com/nilsmagnus/wsdl2java) that can merge them together, but it is deprecated.
 I hope to port that functionality into this plugin at some point.

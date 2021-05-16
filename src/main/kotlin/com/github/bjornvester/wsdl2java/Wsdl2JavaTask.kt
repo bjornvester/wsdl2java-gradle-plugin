@@ -2,10 +2,14 @@ package com.github.bjornvester.wsdl2java
 
 import com.github.bjornvester.wsdl2java.Wsdl2JavaPlugin.Companion.WSDL2JAVA_CONFIGURATION_NAME
 import com.github.bjornvester.wsdl2java.Wsdl2JavaPlugin.Companion.WSDL2JAVA_EXTENSION_NAME
+import com.github.bjornvester.wsdl2java.Wsdl2JavaPlugin.Companion.XJC_PLUGINS_CONFIGURATION_NAME
+import com.github.bjornvester.wsdl2java.Wsdl2JavaPluginExtension.Companion.MARK_GENERATED_NO
 import com.github.bjornvester.wsdl2java.Wsdl2JavaPluginExtension.Companion.MARK_GENERATED_YES_JDK8
 import com.github.bjornvester.wsdl2java.Wsdl2JavaPluginExtension.Companion.MARK_GENERATED_YES_JDK9
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.NamedDomainObjectProvider
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.internal.file.FileOperations
 import org.gradle.api.model.ObjectFactory
@@ -49,6 +53,9 @@ open class Wsdl2JavaTask @Inject constructor(
     @get:Classpath
     val wsdl2JavaConfiguration = project.configurations.named(WSDL2JAVA_CONFIGURATION_NAME)
 
+    @get:Classpath
+    val xjcPluginsConfiguration: NamedDomainObjectProvider<Configuration> = project.configurations.named(XJC_PLUGINS_CONFIGURATION_NAME)
+
     @get:OutputDirectory
     val sourcesOutputDir: DirectoryProperty = objects.directoryProperty().convention(getWsdl2JavaExtension().generatedSourceDir)
 
@@ -65,7 +72,9 @@ open class Wsdl2JavaTask @Inject constructor(
         fileOperations.mkdir(sourcesOutputDir)
 
         val workerExecutor = workerExecutor.classLoaderIsolation {
-            classpath.from(wsdl2JavaConfiguration)
+            classpath
+                .from(wsdl2JavaConfiguration)
+                .from(xjcPluginsConfiguration)
         }
 
         val defaultArgs = buildDefaultArguments()
@@ -140,6 +149,11 @@ open class Wsdl2JavaTask @Inject constructor(
     }
 
     private fun validateOptions() {
+        val supportedMarkGeneratedValues = listOf(MARK_GENERATED_NO, MARK_GENERATED_YES_JDK8, MARK_GENERATED_YES_JDK9)
+        if (markGenerated.get() !in supportedMarkGeneratedValues) {
+            throw GradleException("The property 'markGenerated' had an invalid value '${markGenerated.get()}'. Supported values are: $supportedMarkGeneratedValues")
+        }
+
         if (options.isPresent) {
             val prohibitedOptions = mapOf(
                 "-verbose" to "Configured through the 'verbose' property",
@@ -152,7 +166,7 @@ open class Wsdl2JavaTask @Inject constructor(
 
             options.get().forEach { option ->
                 if (prohibitedOptions.containsKey(option)) {
-                    throw GradleException("the option '$option' is not allowed in this plugin. Reason: ${prohibitedOptions[option]}")
+                    throw GradleException("The option '$option' is not allowed in this plugin. Reason: ${prohibitedOptions[option]}")
                 }
             }
         }
