@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.github.bjornvester"
-version = "1.0-snapshot"
+version = "1.0"
 
 repositories {
     mavenCentral()

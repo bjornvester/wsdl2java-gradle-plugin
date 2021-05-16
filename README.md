@@ -14,7 +14,7 @@ Apply the plugin ID "com.github.bjornvester.wsdl2java" as specific in the [Gradl
 
 ```kotlin
 plugins {
-    id("com.github.bjornvester.wsdl2java") version "1.0-snapshot"
+    id("com.github.bjornvester.wsdl2java") version "1.0"
 }
 ```
 
