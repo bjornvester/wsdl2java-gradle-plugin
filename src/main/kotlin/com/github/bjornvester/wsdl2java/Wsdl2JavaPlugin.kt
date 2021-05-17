@@ -2,6 +2,7 @@ package com.github.bjornvester.wsdl2java
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.SourceSet.MAIN_SOURCE_SET_NAME
 import org.gradle.api.tasks.SourceSetContainer
@@ -14,6 +15,7 @@ class Wsdl2JavaPlugin : Plugin<Project> {
         const val WSDL2JAVA_TASK_NAME = "wsdl2java"
         const val WSDL2JAVA_EXTENSION_NAME = "wsdl2java"
         const val WSDL2JAVA_CONFIGURATION_NAME = "wsdl2java"
+        const val XJC_PLUGINS_CONFIGURATION_NAME = "xjcPlugins"
     }
 
     override fun apply(project: Project) {
@@ -21,7 +23,8 @@ class Wsdl2JavaPlugin : Plugin<Project> {
         verifyGradleVersion()
         project.plugins.apply(JavaPlugin::class.java)
         val extension = project.extensions.create(WSDL2JAVA_EXTENSION_NAME, Wsdl2JavaPluginExtension::class.java)
-        val wsdl2JavaConfiguration = project.configurations.maybeCreate(WSDL2JAVA_CONFIGURATION_NAME)
+        val wsdl2JavaConfiguration = createResolvableConfiguration(project, WSDL2JAVA_CONFIGURATION_NAME)
+        createResolvableConfiguration(project, XJC_PLUGINS_CONFIGURATION_NAME)
 
         wsdl2JavaConfiguration.defaultDependencies {
             addLater(extension.cxfVersion.map { project.dependencies.create("org.apache.cxf:cxf-tools-wsdlto-frontend-jaxws:$it") })
@@ -55,6 +58,14 @@ class Wsdl2JavaPlugin : Plugin<Project> {
                 "Plugin $PLUGIN_ID requires at least Gradle $MINIMUM_GRADLE_VERSION, " +
                         "but you are using ${GradleVersion.current().version}"
             )
+        }
+    }
+
+    private fun createResolvableConfiguration(project: Project, name: String): Configuration {
+        return project.configurations.maybeCreate(name).apply {
+            isCanBeConsumed = false
+            isCanBeResolved = true
+            isVisible = false
         }
     }
 }

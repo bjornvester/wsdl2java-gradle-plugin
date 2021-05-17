@@ -18,8 +18,12 @@ abstract class Wsdl2JavaWorker : WorkAction<Wsdl2JavaWorkerParams> {
                 WSDLToJava(args.toTypedArray()).run(ToolContext())
             } catch (e: Exception) {
                 // We can't propagate the exception as it might contain classes from CXF which are not available outside the worker execution context
-                // Also, for some reason, we can't even put the message from the original exception in as it has shown to cause problems with serialization (though it is just a string)
-                logger.error("Failed to generate sources from WSDL", e)
+                // Also, for some reason, we can't even log the error as it sometimes fails with:
+                // java.io.StreamCorruptedException: invalid type code: 0C
+                // Seems like a bug in Gradle, possible with the error message contain multiple lines
+                // Until we have found the cause of it, we print directly to System.out
+                logger.error("Failed to generate sources from WSDL:")
+                e.printStackTrace()
                 throw GradleException("Failed to generate Java sources from WSDL. See the log for details.")
             }
         }

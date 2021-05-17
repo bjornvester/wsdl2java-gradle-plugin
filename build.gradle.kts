@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.github.bjornvester"
-version = "1.0"
+version = "1.1"
 
 repositories {
     mavenCentral()
@@ -63,8 +63,8 @@ pluginBundle {
         "wsdl2JavaPlugin" {
             displayName = "Gradle Wsdl2Java plugin"
             description = "Changes:\n" +
-                    "  - New configuration options added, including the ability to specify a binding file\n" +
-                    "  - Minimum version is now 6.0 (previously 5.4) due to internal use of new APIs"
+                    "  - Make it easier to use XJC plugins\n" +
+                    "  - Suppress a ton of harmless warnings from XJC"
             tags = listOf("wsdl2java", "cxf", "wsimport")
         }
     }

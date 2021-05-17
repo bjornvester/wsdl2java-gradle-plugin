@@ -2,10 +2,14 @@ package com.github.bjornvester.wsdl2java
 
 import com.github.bjornvester.wsdl2java.Wsdl2JavaPlugin.Companion.WSDL2JAVA_CONFIGURATION_NAME
 import com.github.bjornvester.wsdl2java.Wsdl2JavaPlugin.Companion.WSDL2JAVA_EXTENSION_NAME
+import com.github.bjornvester.wsdl2java.Wsdl2JavaPlugin.Companion.XJC_PLUGINS_CONFIGURATION_NAME
+import com.github.bjornvester.wsdl2java.Wsdl2JavaPluginExtension.Companion.MARK_GENERATED_NO
 import com.github.bjornvester.wsdl2java.Wsdl2JavaPluginExtension.Companion.MARK_GENERATED_YES_JDK8
 import com.github.bjornvester.wsdl2java.Wsdl2JavaPluginExtension.Companion.MARK_GENERATED_YES_JDK9
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.NamedDomainObjectProvider
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.internal.file.FileOperations
 import org.gradle.api.model.ObjectFactory
@@ -49,6 +53,9 @@ open class Wsdl2JavaTask @Inject constructor(
     @get:Classpath
     val wsdl2JavaConfiguration = project.configurations.named(WSDL2JAVA_CONFIGURATION_NAME)
 
+    @get:Classpath
+    val xjcPluginsConfiguration: NamedDomainObjectProvider<Configuration> = project.configurations.named(XJC_PLUGINS_CONFIGURATION_NAME)
+
     @get:OutputDirectory
     val sourcesOutputDir: DirectoryProperty = objects.directoryProperty().convention(getWsdl2JavaExtension().generatedSourceDir)
 
@@ -64,8 +71,33 @@ open class Wsdl2JavaTask @Inject constructor(
         fileOperations.delete(sourcesOutputDir)
         fileOperations.mkdir(sourcesOutputDir)
 
-        val workerExecutor = workerExecutor.classLoaderIsolation {
-            classpath.from(wsdl2JavaConfiguration)
+        val workerExecutor = workerExecutor.processIsolation {
+            /*
+            All gradle worker processes have Xerces2 on the classpath.
+            This version of Xerces does not support checking for external file access (even if not used).
+            This causes it to log a whole bunch of stack traces on the form:
+            -- Property "http://javax.xml.XMLConstants/property/accessExternalSchema" is not supported by used JAXP implementation.
+            To avoid this, we fork the worker API to a separate process where we can set system properties to select which implementation of a SAXParser to use.
+            The JDK comes with an internal implementation of a SAXParser, also based on Xerces, but supports the properties to control external file access.
+            */
+            forkOptions.systemProperties = mapOf(
+                "javax.xml.parsers.DocumentBuilderFactory" to "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl",
+                "javax.xml.parsers.SAXParserFactory" to "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl",
+                "javax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema" to "org.apache.xerces.internal.jaxp.validation.XMLSchemaFactory",
+                "javax.xml.accessExternalSchema" to "all"
+            )
+
+            if (logger.isDebugEnabled) {
+                // This adds debugging information on the XJC method used to find and load services (plugins)
+                forkOptions.systemProperties["com.sun.tools.xjc.Options.findServices"] = ""
+            }
+
+            // Set encoding (work-around for https://github.com/gradle/gradle/issues/13843)
+            forkOptions.environment("LANG", System.getenv("LANG") ?: "C.UTF-8")
+
+            classpath
+                .from(wsdl2JavaConfiguration)
+                .from(xjcPluginsConfiguration)
         }
 
         val defaultArgs = buildDefaultArguments()
@@ -107,6 +139,7 @@ open class Wsdl2JavaTask @Inject constructor(
 
     private fun buildDefaultArguments(): MutableList<String> {
         val defaultArgs = mutableListOf(
+            "-xjc-disableXmlSecurity",
             "-autoNameResolution",
             "-d",
             sourcesOutputDir.get().toString()
@@ -140,6 +173,11 @@ open class Wsdl2JavaTask @Inject constructor(
     }
 
     private fun validateOptions() {
+        val supportedMarkGeneratedValues = listOf(MARK_GENERATED_NO, MARK_GENERATED_YES_JDK8, MARK_GENERATED_YES_JDK9)
+        if (markGenerated.get() !in supportedMarkGeneratedValues) {
+            throw GradleException("The property 'markGenerated' had an invalid value '${markGenerated.get()}'. Supported values are: $supportedMarkGeneratedValues")
+        }
+
         if (options.isPresent) {
             val prohibitedOptions = mapOf(
                 "-verbose" to "Configured through the 'verbose' property",
@@ -152,7 +190,7 @@ open class Wsdl2JavaTask @Inject constructor(
 
             options.get().forEach { option ->
                 if (prohibitedOptions.containsKey(option)) {
-                    throw GradleException("the option '$option' is not allowed in this plugin. Reason: ${prohibitedOptions[option]}")
+                    throw GradleException("The option '$option' is not allowed in this plugin. Reason: ${prohibitedOptions[option]}")
                 }
             }
         }
