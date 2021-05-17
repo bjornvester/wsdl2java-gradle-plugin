@@ -71,7 +71,30 @@ open class Wsdl2JavaTask @Inject constructor(
         fileOperations.delete(sourcesOutputDir)
         fileOperations.mkdir(sourcesOutputDir)
 
-        val workerExecutor = workerExecutor.classLoaderIsolation {
+        val workerExecutor = workerExecutor.processIsolation {
+            /*
+            All gradle worker processes have Xerces2 on the classpath.
+            This version of Xerces does not support checking for external file access (even if not used).
+            This causes it to log a whole bunch of stack traces on the form:
+            -- Property "http://javax.xml.XMLConstants/property/accessExternalSchema" is not supported by used JAXP implementation.
+            To avoid this, we fork the worker API to a separate process where we can set system properties to select which implementation of a SAXParser to use.
+            The JDK comes with an internal implementation of a SAXParser, also based on Xerces, but supports the properties to control external file access.
+            */
+            forkOptions.systemProperties = mapOf(
+                "javax.xml.parsers.DocumentBuilderFactory" to "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl",
+                "javax.xml.parsers.SAXParserFactory" to "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl",
+                "javax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema" to "org.apache.xerces.internal.jaxp.validation.XMLSchemaFactory",
+                "javax.xml.accessExternalSchema" to "all"
+            )
+
+            if (logger.isDebugEnabled) {
+                // This adds debugging information on the XJC method used to find and load services (plugins)
+                forkOptions.systemProperties["com.sun.tools.xjc.Options.findServices"] = ""
+            }
+
+            // Set encoding (work-around for https://github.com/gradle/gradle/issues/13843)
+            forkOptions.environment("LANG", System.getenv("LANG") ?: "C.UTF-8")
+
             classpath
                 .from(wsdl2JavaConfiguration)
                 .from(xjcPluginsConfiguration)
@@ -116,6 +139,7 @@ open class Wsdl2JavaTask @Inject constructor(
 
     private fun buildDefaultArguments(): MutableList<String> {
         val defaultArgs = mutableListOf(
+            "-xjc-disableXmlSecurity",
             "-autoNameResolution",
             "-d",
             sourcesOutputDir.get().toString()
