@@ -7,7 +7,7 @@ import javax.inject.Inject
 open class Wsdl2JavaPluginExtension @Inject constructor(objects: ObjectFactory, layout: ProjectLayout) {
     val wsdlDir = objects.directoryProperty().convention(layout.projectDirectory.dir("src/main/resources"))
     val includes = objects.listProperty(String::class.java).convention(listOf("**/*.wsdl"))
-    val bindingFile = objects.fileProperty()
+    val bindingFiles = objects.fileCollection()
     val generatedSourceDir = objects.directoryProperty().convention(layout.buildDirectory.dir("generated/sources/wsdl2java"))
     val cxfVersion = objects.property(String::class.java).convention("3.4.3")
     val options = objects.listProperty(String::class.java)
@@ -24,5 +24,15 @@ open class Wsdl2JavaPluginExtension @Inject constructor(objects: ObjectFactory, 
 
         @JvmStatic
         val MARK_GENERATED_YES_JDK9 = "yes-jdk9"
+    }
+
+    /**
+     * Adds a binding file. The given path is evaluated as per [org.gradle.api.Project.file].
+     *
+     * @param path The binding file to add.
+     * @return this
+     */
+    fun bindingFile(path: Any) {
+        bindingFiles.from(path)
     }
 }

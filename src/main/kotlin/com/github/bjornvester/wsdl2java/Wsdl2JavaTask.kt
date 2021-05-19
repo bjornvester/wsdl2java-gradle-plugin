@@ -31,10 +31,9 @@ open class Wsdl2JavaTask @Inject constructor(
     @get:Input
     val includes = objects.listProperty(String::class.java).convention(getWsdl2JavaExtension().includes)
 
-    @get:InputFile
+    @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
-    @Optional
-    val bindingFile = objects.fileProperty().convention(getWsdl2JavaExtension().bindingFile)
+    val bindingFiles = objects.fileCollection().from(getWsdl2JavaExtension().bindingFiles)
 
     @get:Input
     @Optional
@@ -157,11 +156,11 @@ open class Wsdl2JavaTask @Inject constructor(
             defaultArgs.add("-verbose")
         }
 
-        if (bindingFile.isPresent) {
+        bindingFiles.forEach {
             defaultArgs.addAll(
                 listOf(
                     "-b",
-                    bindingFile.get().asFile.absolutePath
+                    it.absolutePath
                 )
             )
         }

@@ -38,7 +38,7 @@ Here is a list of all available properties:
 | wsdlDir               | DirectoryProperty     | "$projectDir/src<br>/main/resources"             | The directory holding the WSDL and referenced XSD files to compile.                                                  |
 | includes              | ListProperty\<String> | \["**/*.wsdl"]                                   | The inclusion filer (Ant style) for which WSDLs to include                                                           |
 | generatedSourceDir    | DirectoryProperty     | "$buildDir/generated<br>/sources/wsdl2java/java" | The output directory for the generated Java sources.<br>Note that it will be deleted when running XJC.               |
-| bindingFile           | RegularFileProperty   | \[not set\]                                      | A binding file to use in the schema compiler                                                                         |
+| bindingFiles          | FileCollection        | \[empty\]                                        | Binding files to use in the schema compiler                                                                          |
 | cxfVersion            | Provider\<String>     | "3.4.3"                                          | The version of CXF to use.                                                                                           |
 | verbose               | Provider\<Boolean>    | true                                             | Enables verbose output from CXF.                                                                                     |
 | suppressGeneratedDate | Provider\<Boolean>    | true                                             | Suppresses generating dates in CXF. Default is true to support reproducible builds and to work with the build cache. |
@@ -90,11 +90,12 @@ wsdl2java {
 Note that the directory will be wiped completely on each run, so don't put other source files in it.
 
 ### Configure binding files
-A binding file can be added like this:
+A binding file can be added like this, multiple binding files are supported:
 
 ```kotlin
 wsdl2java {
-    bindingFile.set(layout.projectDirectory.file("src/main/bindings/binding.xjb"))
+    bindingFile("src/main/bindings/binding.xjb")
+    bindingFile("src/main/bindings/another-binding.xjb")
 }
 ```
 
@@ -120,7 +121,7 @@ dependencies {
 }
 
 wsdl2java {
-    bindingFile.set(layout.projectDirectory.file("src/main/bindings/bindings.xjb"))
+    bindingFile("src/main/bindings/bindings.xjb")
 }
 ```
 
