@@ -15,7 +15,7 @@ open class Wsdl2JavaPluginExtension @Inject constructor(objects: ObjectFactory, 
     override val wsdlDir = objects.directoryProperty().convention(layout.projectDirectory.dir("src/main/resources"))
     override val includes = objects.listProperty(String::class.java).convention(listOf("**/*.wsdl"))
     override val includesWithOptions = objects.mapProperty(String::class.java, List::class.java)
-    override val bindingFile = objects.fileProperty()
+    override val bindingFiles = objects.fileCollection()
     override val generatedSourceDir = objects.directoryProperty().convention(layout.buildDirectory.dir("generated/sources/wsdl2java/java"))
     override val options = objects.listProperty(String::class.java)
     override val verbose = objects.property(Boolean::class.java)
@@ -31,7 +31,7 @@ open class Wsdl2JavaPluginExtension @Inject constructor(objects: ObjectFactory, 
             wsdlDir.convention(this@Wsdl2JavaPluginExtension.wsdlDir)
             includes.convention(this@Wsdl2JavaPluginExtension.includes)
             includesWithOptions.convention(this@Wsdl2JavaPluginExtension.includesWithOptions)
-            bindingFile.convention(this@Wsdl2JavaPluginExtension.bindingFile)
+            bindingFiles.from(this@Wsdl2JavaPluginExtension.bindingFiles)
             generatedSourceDir.convention(layout.buildDirectory.dir("generated/sources/wsdl2java-$name/java"))
             options.convention(this@Wsdl2JavaPluginExtension.options)
             verbose.convention(this@Wsdl2JavaPluginExtension.verbose)
@@ -54,5 +54,15 @@ open class Wsdl2JavaPluginExtension @Inject constructor(objects: ObjectFactory, 
 
         @JvmStatic
         val GENERATED_STYLE_JAKARTA = "jakarta"
+    }
+
+    /**
+     * Adds a binding file. The given path is evaluated as per [org.gradle.api.Project.file].
+     *
+     * @param path The binding file to add.
+     * @return this
+     */
+    fun bindingFile(path: Any) {
+        bindingFiles.from(path)
     }
 }

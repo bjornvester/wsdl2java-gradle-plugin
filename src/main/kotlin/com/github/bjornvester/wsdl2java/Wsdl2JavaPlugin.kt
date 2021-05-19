@@ -73,7 +73,7 @@ class Wsdl2JavaPlugin : Plugin<Project> {
             wsdlInputDir.convention(group.wsdlDir)
             includes.convention(group.includes)
             includesWithOptions.convention(group.includesWithOptions)
-            bindingFile.convention(group.bindingFile)
+            bindingFiles.from(group.bindingFiles)
             options.convention(group.options)
             verbose.convention(group.verbose)
             suppressGeneratedDate.convention(group.suppressGeneratedDate)
