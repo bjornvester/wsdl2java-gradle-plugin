@@ -14,6 +14,7 @@ open class Wsdl2JavaPluginExtension @Inject constructor(objects: ObjectFactory, 
     val verbose = objects.property(Boolean::class.java).convention(true)
     val suppressGeneratedDate = objects.property(Boolean::class.java).convention(true)
     val markGenerated = objects.property(String::class.java).convention(MARK_GENERATED_NO)
+    val encoding = objects.property(String::class.java)
 
     companion object {
         @JvmStatic
