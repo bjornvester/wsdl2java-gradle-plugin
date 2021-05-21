@@ -33,7 +33,7 @@ wsdl2java {
 
 Here is a list of all available properties:
 
-| Property              | Type                  | Default                                                                              | Description                                                                                                          |
+| Property              | Type                  | Default                                          | Description                                                                                                          |
 |-----------------------|-----------------------|--------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
 | wsdlDir               | DirectoryProperty     | "$projectDir/src<br>/main/resources"             | The directory holding the WSDL and referenced XSD files to compile.                                                  |
 | includes              | ListProperty\<String> | \["**/*.wsdl"]                                   | The inclusion filer (Ant style) for which WSDLs to include                                                           |
@@ -42,7 +42,8 @@ Here is a list of all available properties:
 | cxfVersion            | Provider\<String>     | "3.4.3"                                          | The version of CXF to use.                                                                                           |
 | verbose               | Provider\<Boolean>    | true                                             | Enables verbose output from CXF.                                                                                     |
 | suppressGeneratedDate | Provider\<Boolean>    | true                                             | Suppresses generating dates in CXF. Default is true to support reproducible builds and to work with the build cache. |
-| markGenerated         | Provider\<String>     | "no"                                             | Adds the @Generated annotation to the generated sources. See below for details as there are some gotchas with this.  |                                                              |
+| markGenerated         | Provider\<String>     | "no"                                             | Adds the @Generated annotation to the generated sources. See below for details as there are some gotchas with this.  |
+| encoding              | Provider\<String>     | `encoding` option of the `compileJava` Task      | The encoding of generated Java sources.                                                                              |
 | options               | ListProperty\<String> | \[empty\]                                        | Additional options to pass to the tool. See [here](https://cxf.apache.org/docs/wsdl-to-java.html) for details.       |
 
 
@@ -137,11 +138,25 @@ wsdl2java {
 ```
 
 ### Configure encoding
-If your WSDL files include non-ANSI characters, you should set the corresponding file encoding in your gradle.properties file. E.g.:
+If your WSDL files include non-ANSI characters, you should set the corresponding `encoding` property:
 
-```properties
-org.gradle.jvmargs=-Dfile.encoding=UTF-8
+```kotlin
+wsdl2java {
+    encoding.set("UTF-8")
+}
 ```
+
+Note that if this option is not set, the encoding defaults to the encoding setting configured at the `compileJava` task.
+
+```kotlin
+tasks {
+    compileJava {
+        options.encoding = "UTF-8"
+    }
+}
+```
+
+If that is also not set, files will ultimately be generated with the platform encoding, which may produce undesired results.
 
 If you are on a POSIX operating system (e.g. Linux), you may in addition to this need to set your operating system locale to one that supports your encoding.
 Otherwise, Java (and therefore also Gradle and CXF) may not be able to create files with names outside of what your default locale supports.

@@ -14,7 +14,10 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.internal.file.FileOperations
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.BasePlugin
+import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
+import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.workers.WorkerExecutor
 import javax.inject.Inject
 
@@ -49,6 +52,10 @@ open class Wsdl2JavaTask @Inject constructor(
     @get:Input
     @Optional
     val markGenerated = objects.property(String::class.java).convention(getWsdl2JavaExtension().markGenerated)
+
+    @get:Input
+    @Optional
+    val encoding = objects.property(String::class.java).convention(getWsdl2JavaExtension().encoding)
 
     @get:Classpath
     val wsdl2JavaConfiguration = project.configurations.named(WSDL2JAVA_CONFIGURATION_NAME)
@@ -157,6 +164,17 @@ open class Wsdl2JavaTask @Inject constructor(
             defaultArgs.add("-verbose")
         }
 
+        if (encoding.isPresent) {
+            defaultArgs.addAll(listOf("-encoding", encoding.get()))
+        } else {
+            // JavaCompile.options.encoding is nullable so task.map{} cannot be effectively used
+            // https://github.com/gradle/gradle/issues/12388
+            val javaCompile = project.tasks.named(JavaPlugin.COMPILE_JAVA_TASK_NAME, JavaCompile::class.java).get()
+            javaCompile.options.encoding?.let {
+                defaultArgs.addAll(listOf("-encoding", it))
+            }
+        }
+
         if (bindingFile.isPresent) {
             defaultArgs.addAll(
                 listOf(
@@ -181,6 +199,7 @@ open class Wsdl2JavaTask @Inject constructor(
         if (options.isPresent) {
             val prohibitedOptions = mapOf(
                 "-verbose" to "Configured through the 'verbose' property",
+                "-encoding" to "Configured through the 'encoding' property",
                 "-d" to "Configured through the 'generatedSourceDir' property",
                 "-b" to "Configured through the 'bindingFile' property",
                 "-suppress-generated-date" to "Configured through the 'suppressGeneratedDate' property",
