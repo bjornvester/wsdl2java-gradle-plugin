@@ -14,6 +14,7 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.internal.file.FileOperations
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.BasePlugin
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.tasks.*
 import org.gradle.workers.WorkerExecutor
 import javax.inject.Inject
@@ -30,6 +31,9 @@ open class Wsdl2JavaTask @Inject constructor(
 
     @get:Input
     val includes = objects.listProperty(String::class.java).convention(getWsdl2JavaExtension().includes)
+
+    @get:Input
+    val includesWithOptions = objects.mapProperty(String::class.java, List::class.java).convention(getWsdl2JavaExtension().includesWithOptions)
 
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -104,9 +108,36 @@ open class Wsdl2JavaTask @Inject constructor(
         val defaultArgs = buildDefaultArguments()
         val wsdlToArgs = mutableMapOf<String, List<String>>()
 
+        if (includesWithOptions.isPresent) {
+            includesWithOptions.get().forEach { (includePattern, includeOptions) ->
+                addWsdlToArgs(listOf(includePattern), defaultArgs + includeOptions as List<String>, wsdlToArgs)
+            }
+        } else {
+            addWsdlToArgs(includes.get(), defaultArgs, wsdlToArgs)
+        }
+
+        // Note that we don't run the CXF tool on each WSDL file as the build might be configured with parallel execution
+        // This could be a problem if multiple WSDLs references the same schemas as CXF might try and write to the same files
+        workerExecutor.submit(Wsdl2JavaWorker::class.java) {
+            this.wsdlToArgs = wsdlToArgs
+            outputDir = sourcesOutputDir.get()
+            switchGeneratedAnnotation = (markGenerated.get() == MARK_GENERATED_YES_JDK9)
+            removeDateFromGeneratedAnnotation =
+                (markGenerated.get() in listOf(
+                    MARK_GENERATED_YES_JDK8,
+                    MARK_GENERATED_YES_JDK9
+                )) && suppressGeneratedDate.get()
+        }
+    }
+
+    private fun addWsdlToArgs(
+        includePattern: List<String>?,
+        defaultArgs: List<String>,
+        wsdlToArgs: MutableMap<String, List<String>>
+    ) {
         wsdlInputDir
             .asFileTree
-            .matching { include(this@Wsdl2JavaTask.includes.get()) }
+            .matching { if (includePattern != null) include(includePattern) }
             .forEach { wsdlFile ->
                 val computedArgs = mutableListOf<String>()
                 computedArgs.addAll(defaultArgs)
@@ -123,19 +154,6 @@ open class Wsdl2JavaTask @Inject constructor(
                 computedArgs.add(wsdlFile.path)
                 wsdlToArgs[wsdlFile.path] = computedArgs
             }
-
-        // Note that we don't run the CXF tool on each WSDL file as the build might be configured with parallel execution
-        // This could be a problem if multiple WSDLs references the same schemas as CXF might try and write to the same files
-        workerExecutor.submit(Wsdl2JavaWorker::class.java) {
-            this.wsdlToArgs = wsdlToArgs
-            outputDir = sourcesOutputDir.get()
-            switchGeneratedAnnotation = (markGenerated.get() == MARK_GENERATED_YES_JDK9)
-            removeDateFromGeneratedAnnotation =
-                (markGenerated.get() in listOf(
-                    MARK_GENERATED_YES_JDK8,
-                    MARK_GENERATED_YES_JDK9
-                )) && suppressGeneratedDate.get()
-        }
     }
 
     private fun buildDefaultArguments(): MutableList<String> {
@@ -180,7 +198,7 @@ open class Wsdl2JavaTask @Inject constructor(
             throw GradleException("The property 'markGenerated' had an invalid value '${markGenerated.get()}'. Supported values are: $supportedMarkGeneratedValues")
         }
 
-        if (options.isPresent) {
+        if (options.isPresent || includesWithOptions.isPresent) {
             val prohibitedOptions = mapOf(
                 "-verbose" to "Configured through the 'verbose' property",
                 "-d" to "Configured through the 'generatedSourceDir' property",
@@ -190,7 +208,7 @@ open class Wsdl2JavaTask @Inject constructor(
                 "-autoNameResolution" to "Configured automatically and cannot currently be overridden"
             )
 
-            options.get().forEach { option ->
+            (options.getOrElse(emptyList()) + includesWithOptions.getOrElse(emptyMap()).values).forEach { option ->
                 if (prohibitedOptions.containsKey(option)) {
                     throw GradleException("The option '$option' is not allowed in this plugin. Reason: ${prohibitedOptions[option]}")
                 }

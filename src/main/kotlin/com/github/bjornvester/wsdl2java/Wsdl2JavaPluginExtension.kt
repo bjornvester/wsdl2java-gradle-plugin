@@ -7,6 +7,7 @@ import javax.inject.Inject
 open class Wsdl2JavaPluginExtension @Inject constructor(objects: ObjectFactory, layout: ProjectLayout) {
     val wsdlDir = objects.directoryProperty().convention(layout.projectDirectory.dir("src/main/resources"))
     val includes = objects.listProperty(String::class.java).convention(listOf("**/*.wsdl"))
+    val includesWithOptions = objects.mapProperty(String::class.java, List::class.java)
     val bindingFile = objects.fileProperty()
     val generatedSourceDir = objects.directoryProperty().convention(layout.buildDirectory.dir("generated/sources/wsdl2java"))
     val cxfVersion = objects.property(String::class.java).convention("3.4.3")
