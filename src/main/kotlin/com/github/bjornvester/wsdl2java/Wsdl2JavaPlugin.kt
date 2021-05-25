@@ -34,9 +34,12 @@ class Wsdl2JavaPlugin : Plugin<Project> {
             add(project.dependencies.create("org.slf4j:slf4j-simple:1.7.30"))
         }
 
+
         project.configurations.named("implementation") {
-            dependencies.add(project.dependencies.create("jakarta.xml.ws:jakarta.xml.ws-api:2.3.3"))
-            dependencies.add(project.dependencies.create("jakarta.jws:jakarta.jws-api:1.1.1"))
+            if (extension.addCompilationDependencies.get()) {
+                dependencies.add(project.dependencies.create("jakarta.xml.ws:jakarta.xml.ws-api:2.3.3"))
+                dependencies.add(project.dependencies.create("jakarta.jws:jakarta.jws-api:1.1.1"))
+            }
         }
 
         project.tasks.register(WSDL2JAVA_TASK_NAME, Wsdl2JavaTask::class.java) {

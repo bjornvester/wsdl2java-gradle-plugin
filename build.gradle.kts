@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.github.bjornvester"
-version = "1.1"
+version = "1.2"
 
 repositories {
     mavenCentral()
@@ -63,8 +63,8 @@ pluginBundle {
         "wsdl2JavaPlugin" {
             displayName = "Gradle Wsdl2Java plugin"
             description = "Changes:\n" +
-                    "  - Make it easier to use XJC plugins\n" +
-                    "  - Suppress a ton of harmless warnings from XJC"
+                    "  - Verbose is now only enabled by default on the info logging level\n" +
+                    "  - The addition of dependencies to the implementation configuration for compiling the generated sources can now be disabled"
             tags = listOf("wsdl2java", "cxf", "wsimport")
         }
     }

@@ -11,9 +11,10 @@ open class Wsdl2JavaPluginExtension @Inject constructor(objects: ObjectFactory, 
     val generatedSourceDir = objects.directoryProperty().convention(layout.buildDirectory.dir("generated/sources/wsdl2java"))
     val cxfVersion = objects.property(String::class.java).convention("3.4.3")
     val options = objects.listProperty(String::class.java)
-    val verbose = objects.property(Boolean::class.java).convention(true)
+    val verbose = objects.property(Boolean::class.java)
     val suppressGeneratedDate = objects.property(Boolean::class.java).convention(true)
     val markGenerated = objects.property(String::class.java).convention(MARK_GENERATED_NO)
+    val addCompilationDependencies = objects.property(Boolean::class.java).convention(true)
 
     companion object {
         @JvmStatic

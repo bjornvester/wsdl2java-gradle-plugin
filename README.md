@@ -7,14 +7,14 @@ A Gradle plugin for generating Java classes from WSDL files through CXF.
 * It supports the Gradle build cache (enabled by setting "org.gradle.caching=true" in your gradle.properties file).
 * It supports project relocation for the build cache (e.g. you move your project to a new path, or make a new copy/clone of it).
   This is especially useful in a CI context, where you might clone PRs and/or branches for a repository in their own locations.
-* It supports parallel execution (enabled with "org.gradle.parallel=true" in your gradle.properties file).
+* It supports parallel execution (enabled with "org.gradle.parallel=true" in your gradle.properties file), though it does not itself run anything in parallel.
 
 ## Configuration
 Apply the plugin ID "com.github.bjornvester.wsdl2java" as specific in the [Gradle Plugin portal page](https://plugins.gradle.org/plugin/com.github.bjornvester.wsdl2java), e.g. like this:
 
 ```kotlin
 plugins {
-    id("com.github.bjornvester.wsdl2java") version "1.1"
+    id("com.github.bjornvester.wsdl2java") version "1.2"
 }
 ```
 
@@ -33,17 +33,18 @@ wsdl2java {
 
 Here is a list of all available properties:
 
-| Property              | Type                  | Default                                                                              | Description                                                                                                          |
-|-----------------------|-----------------------|--------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
-| wsdlDir               | DirectoryProperty     | "$projectDir/src<br>/main/resources"             | The directory holding the WSDL and referenced XSD files to compile.                                                  |
-| includes              | ListProperty\<String> | \["**/*.wsdl"]                                   | The inclusion filer (Ant style) for which WSDLs to include                                                           |
-| generatedSourceDir    | DirectoryProperty     | "$buildDir/generated<br>/sources/wsdl2java/java" | The output directory for the generated Java sources.<br>Note that it will be deleted when running XJC.               |
-| bindingFile           | RegularFileProperty   | \[not set\]                                      | A binding file to use in the schema compiler                                                                         |
-| cxfVersion            | Provider\<String>     | "3.4.3"                                          | The version of CXF to use.                                                                                           |
-| verbose               | Provider\<Boolean>    | true                                             | Enables verbose output from CXF.                                                                                     |
-| suppressGeneratedDate | Provider\<Boolean>    | true                                             | Suppresses generating dates in CXF. Default is true to support reproducible builds and to work with the build cache. |
-| markGenerated         | Provider\<String>     | "no"                                             | Adds the @Generated annotation to the generated sources. See below for details as there are some gotchas with this.  |                                                              |
-| options               | ListProperty\<String> | \[empty\]                                        | Additional options to pass to the tool. See [here](https://cxf.apache.org/docs/wsdl-to-java.html) for details.       |
+| Property                   | Type                  | Default                                                                              | Description                                                                                                          |
+|----------------------------|-----------------------|--------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
+| wsdlDir                    | DirectoryProperty     | "$projectDir/src<br>/main/resources"             | The directory holding the WSDL and referenced XSD files to compile.                                                  |
+| includes                   | ListProperty\<String> | \["**/*.wsdl"]                                   | The inclusion filer (Ant style) for which WSDLs to include.                                                          |
+| generatedSourceDir         | DirectoryProperty     | "$buildDir/generated<br>/sources/wsdl2java/java" | The output directory for the generated Java sources.<br>Note that it will be deleted when running XJC.               |
+| bindingFile                | RegularFileProperty   | \[not set\]                                      | A binding file to use in the schema compiler.                                                                        |
+| cxfVersion                 | Provider\<String>     | "3.4.3"                                          | The version of CXF to use.                                                                                           |
+| verbose                    | Provider\<Boolean>    | \[not set\]                                      | Enables verbose output from CXF. If not set, it will be be enabled only on the info logging level.                   |
+| suppressGeneratedDate      | Provider\<Boolean>    | true                                             | Suppresses generating dates in CXF. Default is true to support reproducible builds and to work with the build cache. |
+| markGenerated              | Provider\<String>     | "no"                                             | Adds the @Generated annotation to the generated sources. See below for details as there are some gotchas with this.  |                                                              |
+| options                    | ListProperty\<String> | \[empty\]                                        | Additional options to pass to the tool. See [here](https://cxf.apache.org/docs/wsdl-to-java.html) for details.       |
+| addCompilationDependencies | Provider\<Boolean>    | true                                             | Adds dependencies to the `implementation` configuration for compiling the generated sources.                         |
 
 
 ### Configure the CXF version
@@ -190,12 +191,12 @@ For example, to use the "Equals" and "Hashcode" plugin from the [JAXB2 Basics](h
 
 ```kotlin
 dependencies {
-  implementation("org.jvnet.jaxb2_commons:jaxb2-basics-runtime:1.11.1")
-  xjcPlugins("org.jvnet.jaxb2_commons:jaxb2-basics:1.11.1")
+    implementation("org.jvnet.jaxb2_commons:jaxb2-basics-runtime:1.11.1")
+    xjcPlugins("org.jvnet.jaxb2_commons:jaxb2-basics:1.11.1")
 }
 
 wsdl2java {
-  options.addAll("-xjc-Xequals", "-xjc-XhashCode")
+    options.addAll("-xjc-Xequals", "-xjc-XhashCode")
 }
 ```
 

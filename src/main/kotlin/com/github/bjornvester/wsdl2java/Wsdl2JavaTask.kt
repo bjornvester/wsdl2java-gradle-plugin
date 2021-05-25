@@ -41,6 +41,7 @@ open class Wsdl2JavaTask @Inject constructor(
     val options = objects.listProperty(String::class.java).convention(getWsdl2JavaExtension().options)
 
     @get:Input
+    @Optional
     val verbose = objects.property(Boolean::class.java).convention(getWsdl2JavaExtension().verbose)
 
     @get:Input
@@ -153,7 +154,8 @@ open class Wsdl2JavaTask @Inject constructor(
             defaultArgs.add("-mark-generated")
         }
 
-        if (verbose.get()) {
+        // Add the verbose parameter if explicitly configured to true, or if not set but info logging is enabled
+        if (verbose.getOrElse(false) || (!verbose.isPresent && logger.isInfoEnabled)) {
             defaultArgs.add("-verbose")
         }
 
