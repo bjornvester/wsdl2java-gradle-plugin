@@ -4,8 +4,10 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.SourceSet.MAIN_SOURCE_SET_NAME
 import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.kotlin.dsl.withConvention
 import org.gradle.util.GradleVersion
 
 class Wsdl2JavaPlugin : Plugin<Project> {
@@ -39,11 +41,11 @@ class Wsdl2JavaPlugin : Plugin<Project> {
             dependencies.add(project.dependencies.create("jakarta.jws:jakarta.jws-api:1.1.1"))
         }
 
-        project.tasks.register(WSDL2JAVA_TASK_NAME, Wsdl2JavaTask::class.java) {
-            val sourceSets = project.properties["sourceSets"] as SourceSetContainer
+        val task = project.tasks.register(WSDL2JAVA_TASK_NAME, Wsdl2JavaTask::class.java)
 
+        project.withConvention(JavaPluginConvention::class) {
             sourceSets.named(MAIN_SOURCE_SET_NAME) {
-                java.srcDir(sourcesOutputDir)
+                java.srcDir(task.map { it.sourcesOutputDir })
             }
         }
 
