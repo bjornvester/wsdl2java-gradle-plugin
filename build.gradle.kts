@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.github.bjornvester"
-version = "1.1"
+version = "1.2"
 
 repositories {
     mavenCentral()
@@ -26,7 +26,7 @@ tasks.withType<Test>().configureEach {
 }
 
 tasks.withType<Wrapper> {
-    gradleVersion = "7.0.1"
+    gradleVersion = "7.1.1"
 }
 
 dependencies {
@@ -62,10 +62,14 @@ pluginBundle {
     (plugins) {
         "wsdl2JavaPlugin" {
             displayName = "Gradle Wsdl2Java plugin"
-            description = "Changes:\n" +
-                    "  - Make it easier to use XJC plugins\n" +
-                    "  - Suppress a ton of harmless warnings from XJC"
             tags = listOf("wsdl2java", "cxf", "wsimport")
+            description = "Changes:\n" +
+                    "  - Verbose is now only enabled by default on the info logging level\n" +
+                    "  - The addition of dependencies to the implementation configuration for compiling the generated sources can now be disabled"
+                    "  - Added an option for configuring the package name of the generated sources (same as the -p option)"
+                    "  - Defaults to CXF version 3.4.4 (from 3.4.3)"
+                    "  - Changed default output directory from generated/sources/wsdl2java to generated/sources/wsdl2java/java"
+                    "  - Support grouping WSDLs and generate source code for them with different configurations (requires Gradle 7.0+). Not documented yet though."
         }
     }
 }

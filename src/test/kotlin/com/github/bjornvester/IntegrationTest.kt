@@ -25,6 +25,12 @@ open class IntegrationTest {
         // Remove the "includedBuild" declaration from the settings file
         tempDir.resolve(SETTINGS_FILE).writeText(tempDir.resolve(SETTINGS_FILE).readText().replace("includeBuild(\"..\")", ""))
 
+        if (GradleVersion.version(gradleVersion) < GradleVersion.version("7.0")) {
+            // The grouping functionality is not supported in older versions
+            tempDir.resolve(SETTINGS_FILE)
+                .writeText(tempDir.resolve(SETTINGS_FILE).readText().replace("\"grouping-test\",", ""))
+        }
+
         if (GradleVersion.version(gradleVersion) < GradleVersion.version("6.7")) {
             // If we test with an old version of Gradle that does not support toolchains, remove it
             // Unfortunately, this means we have to test with whatever JDK we are running the build with

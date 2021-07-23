@@ -45,7 +45,8 @@ abstract class Wsdl2JavaWorker : WorkAction<Wsdl2JavaWorkerParams> {
                     // Remove the "date" part from the @Generated annotation
                     // Input example: @Generated(value = "org.apache.cxf.tools.wsdlto.WSDLToJava", date = "2021-05-15T21:18:42.272+02:00", comments = "Apache CXF 3.4.3")
                     // Note that the 'value' property may contain classes in the 'com.sun.tools.xjc' namespace
-                    val generatedPattern = """(@Generated\(value = "[\w\.]*"), date = "[^"]*"([^)]*\))"""
+                    // Also note that the date and comments field may be switched, depending on the version.
+                    val generatedPattern = """(@Generated\(value = .*?"), date = "[^"]*"([^)]*\))"""
                     source = source.replace(Regex(generatedPattern), "$1$2")
                 }
 

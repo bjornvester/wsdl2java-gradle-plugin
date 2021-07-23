@@ -22,7 +22,7 @@ class MarkGeneratedTest {
                 .filter(path -> path.toString().contains("markgenerated") && path.getFileName().toString().endsWith(".java"))
                 .forEach(this::checkGeneratedAnnotations);
 
-        assertEquals(4, filesWithGeneratedAnnotation.get(), "Unexpected number of source files found with the @Generated annotation");
+        assertEquals(5, filesWithGeneratedAnnotation.get(), "Unexpected number of source files found with the @Generated annotation");
     }
 
     private void checkGeneratedAnnotations(final Path path) {

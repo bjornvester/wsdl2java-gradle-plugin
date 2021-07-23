@@ -1,3 +1,6 @@
+[![Gradle Plugin Release](https://img.shields.io/badge/Gradle%20plugin-1.6.0-blue.svg?logo=data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5MCA2Ni4wNiI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiNmZmY7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5ncmFkbGUtZWxlcGhhbnQtaWNvbi13aGl0ZS1wcmltYXJ5PC90aXRsZT48cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik04NS4xMSw0LjE4YTE0LjI3LDE0LjI3LDAsMCwwLTE5LjgzLS4zNCwxLjM4LDEuMzgsMCwwLDAsMCwyTDY3LDcuNmExLjM2LDEuMzYsMCwwLDAsMS43OC4xMkE4LjE4LDguMTgsMCwwLDEsNzkuNSwyMC4wNkM2OC4xNywzMS4zOCw1My4wNS0uMzYsMTguNzMsMTZhNC42NSw0LjY1LDAsMCwwLTIsNi41NGw1Ljg5LDEwLjE3YTQuNjQsNC42NCwwLDAsMCw2LjMsMS43M2wuMTQtLjA4LS4xMS4wOEwzMS41MywzM2E2MC4yOSw2MC4yOSwwLDAsMCw4LjIyLTYuMTMsMS40NCwxLjQ0LDAsMCwxLDEuODctLjA2aDBhMS4zNCwxLjM0LDAsMCwxLC4wNiwyQTYxLjYxLDYxLjYxLDAsMCwxLDMzLDM1LjM0bC0uMDksMC0yLjYxLDEuNDZhNy4zNCw3LjM0LDAsMCwxLTMuNjEuOTQsNy40NSw3LjQ1LDAsMCwxLTYuNDctMy43MWwtNS41Ny05LjYxQzQsMzItMi41NCw0Ni41NiwxLDY1YTEuMzYsMS4zNiwwLDAsMCwxLjMzLDEuMTFIOC42MUExLjM2LDEuMzYsMCwwLDAsMTAsNjQuODdhOS4yOSw5LjI5LDAsMCwxLDE4LjQyLDAsMS4zNSwxLjM1LDAsMCwwLDEuMzQsMS4xOUgzNS45YTEuMzYsMS4zNiwwLDAsMCwxLjM0LTEuMTksOS4yOSw5LjI5LDAsMCwxLDE4LjQyLDBBMS4zNiwxLjM2LDAsMCwwLDU3LDY2LjA2SDYzLjFhMS4zNiwxLjM2LDAsMCwwLDEuMzYtMS4zNGMuMTQtOC42LDIuNDYtMTguNDgsOS4wNy0yMy40M0M5Ni40MywyNC4xNiw5MC40MSw5LjQ4LDg1LjExLDQuMThaTTYxLjc2LDMwLjA1bC00LjM3LTIuMTloMGEyLjc0LDIuNzQsMCwxLDEsNC4zNywyLjJaIi8+PC9zdmc+)](https://plugins.gradle.org/plugin/com.github.bjornvester.xjc)
+[![GitHub Actions status](https://github.com/bjornvester/wsdl2java-gradle-plugin/workflows/CI/badge.svg)](https://github.com/bjornvester/wsdl2java-gradle-plugin/actions)
+
 # wsdl2java-gradle-plugin
 A Gradle plugin for generating Java classes from WSDL files through CXF.
 
@@ -7,14 +10,14 @@ A Gradle plugin for generating Java classes from WSDL files through CXF.
 * It supports the Gradle build cache (enabled by setting "org.gradle.caching=true" in your gradle.properties file).
 * It supports project relocation for the build cache (e.g. you move your project to a new path, or make a new copy/clone of it).
   This is especially useful in a CI context, where you might clone PRs and/or branches for a repository in their own locations.
-* It supports parallel execution (enabled with "org.gradle.parallel=true" in your gradle.properties file).
+* It supports parallel execution (enabled with "org.gradle.parallel=true" in your gradle.properties file), though it does not itself run anything in parallel.
 
 ## Configuration
 Apply the plugin ID "com.github.bjornvester.wsdl2java" as specific in the [Gradle Plugin portal page](https://plugins.gradle.org/plugin/com.github.bjornvester.wsdl2java), e.g. like this:
 
 ```kotlin
 plugins {
-    id("com.github.bjornvester.wsdl2java") version "1.1"
+    id("com.github.bjornvester.wsdl2java") version "1.2"
 }
 ```
 
@@ -33,17 +36,20 @@ wsdl2java {
 
 Here is a list of all available properties:
 
-| Property              | Type                  | Default                                                                              | Description                                                                                                          |
-|-----------------------|-----------------------|--------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
-| wsdlDir               | DirectoryProperty     | "$projectDir/src<br>/main/resources"             | The directory holding the WSDL and referenced XSD files to compile.                                                  |
-| includes              | ListProperty\<String> | \["**/*.wsdl"]                                   | The inclusion filer (Ant style) for which WSDLs to include                                                           |
-| generatedSourceDir    | DirectoryProperty     | "$buildDir/generated<br>/sources/wsdl2java/java" | The output directory for the generated Java sources.<br>Note that it will be deleted when running XJC.               |
-| bindingFile           | RegularFileProperty   | \[not set\]                                      | A binding file to use in the schema compiler                                                                         |
-| cxfVersion            | Provider\<String>     | "3.4.3"                                          | The version of CXF to use.                                                                                           |
-| verbose               | Provider\<Boolean>    | true                                             | Enables verbose output from CXF.                                                                                     |
-| suppressGeneratedDate | Provider\<Boolean>    | true                                             | Suppresses generating dates in CXF. Default is true to support reproducible builds and to work with the build cache. |
-| markGenerated         | Provider\<String>     | "no"                                             | Adds the @Generated annotation to the generated sources. See below for details as there are some gotchas with this.  |                                                              |
-| options               | ListProperty\<String> | \[empty\]                                        | Additional options to pass to the tool. See [here](https://cxf.apache.org/docs/wsdl-to-java.html) for details.       |
+| Property                   | Type                  | Default                                          | Description                                                                                                          |
+|----------------------------|-----------------------|--------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
+| wsdlDir                    | DirectoryProperty     | "$projectDir/src<br>/main/resources"             | The directory holding the WSDL and referenced XSD files to compile.                                                  |
+| includes                   | ListProperty\<String> | \["**/*.wsdl"]                                   | Inclusion filers (Ant style) for which WSDLs to include.                                                             |
+| includesWithOptions        | Map\<String, List>    | \[not set\]                                      | Inclusion filters like above, but with individual options. See below.                                                |
+| generatedSourceDir         | DirectoryProperty     | "$buildDir/generated<br>/sources/wsdl2java/java" | The output directory for the generated Java sources.<br>Note that it will be deleted when running XJC.               |
+| bindingFile                | RegularFileProperty   | \[not set\]                                      | A binding file to use in the schema compiler.                                                                        |
+| cxfVersion                 | Provider\<String>     | "3.4.3"                                          | The version of CXF to use.                                                                                           |
+| verbose                    | Provider\<Boolean>    | \[not set\]                                      | Enables verbose output from CXF. If not set, it will be be enabled only on the info logging level.                   |
+| suppressGeneratedDate      | Provider\<Boolean>    | true                                             | Suppresses generating dates in CXF. Default is true to support reproducible builds and to work with the build cache. |
+| markGenerated              | Provider\<String>     | "no"                                             | Adds the @Generated annotation to the generated sources. See below for details as there are some gotchas with this.  |
+| packageName                | Provider\<String>     | \[not set\]                                      | Sets the package name for the generated sources                                                                      |
+| options                    | ListProperty\<String> | \[empty\]                                        | Additional options to pass to the tool. See [here](https://cxf.apache.org/docs/wsdl-to-java.html) for details.       |
+| addCompilationDependencies | Provider\<Boolean>    | true                                             | Adds dependencies to the `implementation` configuration for compiling the generated sources.                         |
 
 
 ### Configure the CXF version
@@ -57,24 +63,75 @@ wsdl2java {
 
 ### Configure included WSDL files
 By default, the plugin will find all WSDL files in the `wsdlDir` directory, which defaults to `src/main/resources`.
-It is important that if you change this, you change it to a folder that contain all resouces (e.g. both WSDL and XSDs).
+It is important that if you change this, you change it to a folder that contain all resources (e.g. both WSDL and XSDs).
 Otherwise, if you make changes to files outside this folder, Gradle will not see them and thus might consider the task up-to-date.
-Still, if you have other resources than WSDL and XDSs, you may want to put them in a subfolder like `src/main/resources/wsdl` and change the `wsdlDir` property accordingly.
-This will prevent the task from re-running if you make changes to other files in the resource folder not relevant to input.
+
+The plugin will set the `wsdlLocation` property of the `@WebServiceClient` to the path for the WSDL file relative to the `wsdlDir` directory.
+If you change `wsdlDir` in a way where this no longer makes sense, you need to set the option yourself.
+If you have multiple WSDL files, see the section on additional options.
 
 If you have multiple WSDL files and want to only run the tool on some of them, you can use the `includes` property.
 Example:
 
 ```kotlin
 // Only if different from the default 'src/main/resources'
-wsdlDir.set(layout.projectDirectory.dir("src/main/resources/wsdl"))
+wsdlDir.set(layout.projectDirectory.dir("src/main/wsdl"))
 
-includes.set(
-    listOf( // Kotlin method. For the Groovy DSL, use ["one.wsdl", "two.wsdl"] instead
+// For Kotlin DSL
+includes.set(listOf(
         "src/main/wsdls/MyFirstService.wsdl",
         "src/main/wsdls/MySecondService.wsdl"
+))
+```
+
+```groovy
+// For Groovy DSL
+includes = [
+    "src/main/wsdls/MyFirstService.wsdl",
+    "src/main/wsdls/MySecondService.wsdl"
+]
+```
+
+### Configure additional options
+Besides the options given in the `wsdl2java` extension, you can provide additional options directly to CXF (and XJC) through the `options` property:
+
+```kotlin
+// For Kotlin DSL
+includes.set(
+    listOf(
+        "xjc-no-header",
+        "xjc-npa"
     ) 
 )
+
+// For Groovy DSL
+includes = [
+  "xjc-no-header",
+  "xjc-npa"
+]
+```
+
+See [here](https://cxf.apache.org/docs/wsdl-to-java.html) for the available options.
+
+#### Configure additional options for individual WSDL files
+It is possible to pass options for individual WSDL files.
+This is important especially if you need to explicitly configure the `wsdlLocation` option, as it doesn't make to have the same location in all files.
+(But note that if you leave it out, the plugin will guess it based on the file location.)
+
+```kotlin
+// For Kotlin DSL
+includesWithOptions.set(mapOf(
+  "**/ServiceA.wsdl" to listOf("-wsdlLocation", "https://example.com/service-a?wsdl"),
+  "**/ServiceB.wsdl" to listOf("-wsdlLocation", "https://example.com/service-b?wsdl")
+))
+```
+
+```groovy
+// For Groovy DSL
+includes = [
+  "**/ServiceA.wsdl" : ["-wsdlLocation", "https://example.com/service-a?wsdl"],
+  "**/ServiceB.wsdl" : ["-wsdlLocation", "https://example.com/service-b?wsdl"]
+]
 ```
 
 ### Configure the output directory
@@ -136,6 +193,18 @@ wsdl2java {
 </bindings>
 ```
 
+Note that at the moment, it is not possible to specify more than one binding file in the extension. If you require this, use the `-b` option.
+
+### Configuring package names
+The package name for the generated resources can be configured with the `packageName` field:
+
+```kotlin
+wsdl2java {
+    packageName.set("com.github.bjornvester.wsdl2java.group1")
+}
+
+```
+
 ### Configure encoding
 If your WSDL files include non-ANSI characters, you should set the corresponding file encoding in your gradle.properties file. E.g.:
 
@@ -190,12 +259,12 @@ For example, to use the "Equals" and "Hashcode" plugin from the [JAXB2 Basics](h
 
 ```kotlin
 dependencies {
-  implementation("org.jvnet.jaxb2_commons:jaxb2-basics-runtime:1.11.1")
-  xjcPlugins("org.jvnet.jaxb2_commons:jaxb2-basics:1.11.1")
+    implementation("org.jvnet.jaxb2_commons:jaxb2-basics-runtime:1.11.1")
+    xjcPlugins("org.jvnet.jaxb2_commons:jaxb2-basics:1.11.1")
 }
 
 wsdl2java {
-  options.addAll("-xjc-Xequals", "-xjc-XhashCode")
+    options.addAll("-xjc-Xequals", "-xjc-XhashCode")
 }
 ```
 
