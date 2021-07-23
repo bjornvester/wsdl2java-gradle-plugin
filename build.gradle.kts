@@ -62,10 +62,14 @@ pluginBundle {
     (plugins) {
         "wsdl2JavaPlugin" {
             displayName = "Gradle Wsdl2Java plugin"
+            tags = listOf("wsdl2java", "cxf", "wsimport")
             description = "Changes:\n" +
                     "  - Verbose is now only enabled by default on the info logging level\n" +
                     "  - The addition of dependencies to the implementation configuration for compiling the generated sources can now be disabled"
-            tags = listOf("wsdl2java", "cxf", "wsimport")
+                    "  - Added an option for configuring the package name of the generated sources (same as the -p option)"
+                    "  - Defaults to CXF version 3.4.4 (from 3.4.3)"
+                    "  - Changed default output directory from generated/sources/wsdl2java to generated/sources/wsdl2java/java"
+                    "  - Support grouping WSDLs and generate source code for them with different configurations (requires Gradle 7.0+). Not documented yet though."
         }
     }
 }

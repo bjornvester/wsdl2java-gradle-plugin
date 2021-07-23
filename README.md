@@ -36,7 +36,7 @@ wsdl2java {
 
 Here is a list of all available properties:
 
-| Property                   | Type                  | Default                                                                              | Description                                                                                                          |
+| Property                   | Type                  | Default                                          | Description                                                                                                          |
 |----------------------------|-----------------------|--------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
 | wsdlDir                    | DirectoryProperty     | "$projectDir/src<br>/main/resources"             | The directory holding the WSDL and referenced XSD files to compile.                                                  |
 | includes                   | ListProperty\<String> | \["**/*.wsdl"]                                   | Inclusion filers (Ant style) for which WSDLs to include.                                                             |
@@ -46,7 +46,8 @@ Here is a list of all available properties:
 | cxfVersion                 | Provider\<String>     | "3.4.3"                                          | The version of CXF to use.                                                                                           |
 | verbose                    | Provider\<Boolean>    | \[not set\]                                      | Enables verbose output from CXF. If not set, it will be be enabled only on the info logging level.                   |
 | suppressGeneratedDate      | Provider\<Boolean>    | true                                             | Suppresses generating dates in CXF. Default is true to support reproducible builds and to work with the build cache. |
-| markGenerated              | Provider\<String>     | "no"                                             | Adds the @Generated annotation to the generated sources. See below for details as there are some gotchas with this.  |                                                              |
+| markGenerated              | Provider\<String>     | "no"                                             | Adds the @Generated annotation to the generated sources. See below for details as there are some gotchas with this.  |
+| packageName                | Provider\<String>     | \[not set\]                                      | Sets the package name for the generated sources                                                                      |
 | options                    | ListProperty\<String> | \[empty\]                                        | Additional options to pass to the tool. See [here](https://cxf.apache.org/docs/wsdl-to-java.html) for details.       |
 | addCompilationDependencies | Provider\<Boolean>    | true                                             | Adds dependencies to the `implementation` configuration for compiling the generated sources.                         |
 
@@ -190,6 +191,18 @@ wsdl2java {
                       adapter="io.github.threetenjaxb.core.OffsetDateTimeXmlAdapter"/>
     </globalBindings>
 </bindings>
+```
+
+Note that at the moment, it is not possible to specify more than one binding file in the extension. If you require this, use the `-b` option.
+
+### Configuring package names
+The package name for the generated resources can be configured with the `packageName` field:
+
+```kotlin
+wsdl2java {
+    packageName.set("com.github.bjornvester.wsdl2java.group1")
+}
+
 ```
 
 ### Configure encoding

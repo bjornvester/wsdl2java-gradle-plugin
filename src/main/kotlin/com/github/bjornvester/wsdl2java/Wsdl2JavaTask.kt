@@ -55,6 +55,10 @@ open class Wsdl2JavaTask @Inject constructor(
     @Optional
     val markGenerated = objects.property(String::class.java).convention(getWsdl2JavaExtension().markGenerated)
 
+    @get:Input
+    @Optional
+    val packageName = objects.property(String::class.java).convention(getWsdl2JavaExtension().packageName)
+
     @get:Classpath
     val wsdl2JavaConfiguration = project.configurations.named(WSDL2JAVA_CONFIGURATION_NAME)
 
@@ -108,7 +112,7 @@ open class Wsdl2JavaTask @Inject constructor(
         val defaultArgs = buildDefaultArguments()
         val wsdlToArgs = mutableMapOf<String, List<String>>()
 
-        if (includesWithOptions.isPresent) {
+        if (includesWithOptions.isPresent && includesWithOptions.get().isNotEmpty()) {
             includesWithOptions.get().forEach { (includePattern, includeOptions) ->
                 addWsdlToArgs(listOf(includePattern), defaultArgs + includeOptions as List<String>, wsdlToArgs)
             }
@@ -172,6 +176,10 @@ open class Wsdl2JavaTask @Inject constructor(
             defaultArgs.add("-mark-generated")
         }
 
+        if (packageName.isPresent && packageName.get().isNotBlank()) {
+            defaultArgs.addAll(listOf("-p", packageName.get()))
+        }
+
         // Add the verbose parameter if explicitly configured to true, or if not set but info logging is enabled
         if (verbose.getOrElse(false) || (!verbose.isPresent && logger.isInfoEnabled)) {
             defaultArgs.add("-verbose")
@@ -189,6 +197,7 @@ open class Wsdl2JavaTask @Inject constructor(
         if (options.isPresent) {
             defaultArgs.addAll(options.get())
         }
+
         return defaultArgs
     }
 
@@ -202,11 +211,13 @@ open class Wsdl2JavaTask @Inject constructor(
             val prohibitedOptions = mapOf(
                 "-verbose" to "Configured through the 'verbose' property",
                 "-d" to "Configured through the 'generatedSourceDir' property",
-                "-b" to "Configured through the 'bindingFile' property",
+                "-p" to "Configured through the 'packageName' property",
                 "-suppress-generated-date" to "Configured through the 'suppressGeneratedDate' property",
                 "-mark-generated" to "Configured through the 'markGenerated' property",
                 "-autoNameResolution" to "Configured automatically and cannot currently be overridden"
             )
+
+            // Note that we allow specifying binding file(s) through the -b parameter, as we otherwise can't configure individual bindings pr. wsdl
 
             (options.getOrElse(emptyList()) + includesWithOptions.getOrElse(emptyMap()).values).forEach { option ->
                 if (prohibitedOptions.containsKey(option)) {

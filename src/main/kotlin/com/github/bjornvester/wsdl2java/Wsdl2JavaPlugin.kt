@@ -6,11 +6,13 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.SourceSet.MAIN_SOURCE_SET_NAME
 import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.util.GradleVersion
 
 class Wsdl2JavaPlugin : Plugin<Project> {
     companion object {
         const val MINIMUM_GRADLE_VERSION = "6.0"
+        const val MINIMUM_GRADLE_VERSION_GROUPING = "7.0"
         const val PLUGIN_ID = "com.github.bjornvester.wsdl2java"
         const val WSDL2JAVA_TASK_NAME = "wsdl2java"
         const val WSDL2JAVA_EXTENSION_NAME = "wsdl2java"
@@ -42,7 +44,34 @@ class Wsdl2JavaPlugin : Plugin<Project> {
             }
         }
 
-        project.tasks.register(WSDL2JAVA_TASK_NAME, Wsdl2JavaTask::class.java) {
+        val defaultTask = addWsdl2JavaTask(WSDL2JAVA_TASK_NAME, project, extension)
+
+        extension.groups.all {
+            if (GradleVersion.current() < GradleVersion.version(MINIMUM_GRADLE_VERSION_GROUPING)) {
+                throw UnsupportedOperationException("Plugin $PLUGIN_ID requires at least Gradle $MINIMUM_GRADLE_VERSION_GROUPING when using the 'groups' property, but you are using ${GradleVersion.current().version}")
+            }
+
+            defaultTask.configure {
+                enabled = false
+            }
+
+            addWsdl2JavaTask(WSDL2JAVA_TASK_NAME + name.capitalize(), project, this)
+        }
+    }
+
+    private fun addWsdl2JavaTask(name: String, project: Project, group: Wsdl2JavaPluginExtensionGroup): TaskProvider<Wsdl2JavaTask> {
+        var wsdl2JavaTask = project.tasks.register(name, Wsdl2JavaTask::class.java) {
+            wsdlInputDir.convention(group.wsdlDir)
+            includes.convention(group.includes)
+            includesWithOptions.convention(group.includesWithOptions)
+            bindingFile.convention(group.bindingFile)
+            options.convention(group.options)
+            verbose.convention(group.verbose)
+            suppressGeneratedDate.convention(group.suppressGeneratedDate)
+            markGenerated.convention(group.markGenerated)
+            sourcesOutputDir.convention(group.generatedSourceDir)
+            packageName.convention(group.packageName)
+
             val sourceSets = project.properties["sourceSets"] as SourceSetContainer
 
             sourceSets.named(MAIN_SOURCE_SET_NAME) {
@@ -51,8 +80,10 @@ class Wsdl2JavaPlugin : Plugin<Project> {
         }
 
         project.tasks.named(JavaPlugin.COMPILE_JAVA_TASK_NAME) {
-            dependsOn(WSDL2JAVA_TASK_NAME)
+            dependsOn(wsdl2JavaTask)
         }
+
+        return wsdl2JavaTask
     }
 
     private fun verifyGradleVersion() {
