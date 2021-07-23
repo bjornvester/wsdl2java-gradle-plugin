@@ -43,7 +43,7 @@ Here is a list of all available properties:
 | includesWithOptions        | Map\<String, List>    | \[not set\]                                      | Inclusion filters like above, but with individual options. See below.                                                |
 | generatedSourceDir         | DirectoryProperty     | "$buildDir/generated<br>/sources/wsdl2java/java" | The output directory for the generated Java sources.<br>Note that it will be deleted when running XJC.               |
 | bindingFile                | RegularFileProperty   | \[not set\]                                      | A binding file to use in the schema compiler.                                                                        |
-| cxfVersion                 | Provider\<String>     | "3.4.3"                                          | The version of CXF to use.                                                                                           |
+| cxfVersion                 | Provider\<String>     | "3.4.4"                                          | The version of CXF to use.                                                                                           |
 | verbose                    | Provider\<Boolean>    | \[not set\]                                      | Enables verbose output from CXF. If not set, it will be be enabled only on the info logging level.                   |
 | suppressGeneratedDate      | Provider\<Boolean>    | true                                             | Suppresses generating dates in CXF. Default is true to support reproducible builds and to work with the build cache. |
 | markGenerated              | Provider\<String>     | "no"                                             | Adds the @Generated annotation to the generated sources. See below for details as there are some gotchas with this.  |
@@ -57,7 +57,7 @@ You can specify the version of CXF used for code generation like this:
 
 ```kotlin
 wsdl2java {
-    cxfVersion.set("3.4.3")
+    cxfVersion.set("3.4.4")
 }
 ```
 
