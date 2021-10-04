@@ -93,7 +93,8 @@ open class Wsdl2JavaTask @Inject constructor(
                 "javax.xml.parsers.DocumentBuilderFactory" to "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl",
                 "javax.xml.parsers.SAXParserFactory" to "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl",
                 "javax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema" to "org.apache.xerces.internal.jaxp.validation.XMLSchemaFactory",
-                "javax.xml.accessExternalSchema" to "all"
+                "javax.xml.accessExternalSchema" to "all",
+                "javax.xml.accessExternalDTD" to "all"
             )
 
             if (logger.isDebugEnabled) {
