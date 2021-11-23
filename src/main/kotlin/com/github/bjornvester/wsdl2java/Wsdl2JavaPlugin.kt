@@ -33,14 +33,13 @@ class Wsdl2JavaPlugin : Plugin<Project> {
             addLater(extension.cxfVersion.map { project.dependencies.create("org.apache.cxf:cxf-tools-wsdlto-databinding-jaxb:$it") })
             add(project.dependencies.create("jakarta.xml.ws:jakarta.xml.ws-api:2.3.3"))
             add(project.dependencies.create("javax.annotation:javax.annotation-api:1.3.2"))
-            add(project.dependencies.create("org.slf4j:slf4j-simple:1.7.30"))
+            add(project.dependencies.create("org.slf4j:slf4j-simple:1.7.32"))
         }
-
 
         project.configurations.named("implementation") {
             if (extension.addCompilationDependencies.get()) {
                 dependencies.add(project.dependencies.create("jakarta.xml.ws:jakarta.xml.ws-api:2.3.3"))
-                dependencies.add(project.dependencies.create("jakarta.jws:jakarta.jws-api:1.1.1"))
+                dependencies.add(project.dependencies.create("jakarta.jws:jakarta.jws-api:2.1.0"))
             }
         }
 
@@ -60,7 +59,7 @@ class Wsdl2JavaPlugin : Plugin<Project> {
     }
 
     private fun addWsdl2JavaTask(name: String, project: Project, group: Wsdl2JavaPluginExtensionGroup): TaskProvider<Wsdl2JavaTask> {
-        var wsdl2JavaTask = project.tasks.register(name, Wsdl2JavaTask::class.java) {
+        val wsdl2JavaTask = project.tasks.register(name, Wsdl2JavaTask::class.java) {
             wsdlInputDir.convention(group.wsdlDir)
             includes.convention(group.includes)
             includesWithOptions.convention(group.includesWithOptions)

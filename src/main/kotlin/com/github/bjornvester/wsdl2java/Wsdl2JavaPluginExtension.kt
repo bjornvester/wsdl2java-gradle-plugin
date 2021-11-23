@@ -3,7 +3,6 @@ package com.github.bjornvester.wsdl2java
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.model.ObjectFactory
-import org.gradle.api.provider.Property
 import javax.inject.Inject
 
 open class Wsdl2JavaPluginExtension @Inject constructor(objects: ObjectFactory, layout: ProjectLayout) : Wsdl2JavaPluginExtensionGroup {
@@ -15,6 +14,7 @@ open class Wsdl2JavaPluginExtension @Inject constructor(objects: ObjectFactory, 
     override val includes = objects.listProperty(String::class.java).convention(listOf("**/*.wsdl"))
     override val includesWithOptions = objects.mapProperty(String::class.java, List::class.java)
     override val bindingFile = objects.fileProperty()
+    override val bindingFiles = objects.fileCollection()
     override val generatedSourceDir = objects.directoryProperty().convention(layout.buildDirectory.dir("generated/sources/wsdl2java/java"))
     override val options = objects.listProperty(String::class.java)
     override val verbose = objects.property(Boolean::class.java)
@@ -30,6 +30,7 @@ open class Wsdl2JavaPluginExtension @Inject constructor(objects: ObjectFactory, 
             includes.convention(this@Wsdl2JavaPluginExtension.includes)
             includesWithOptions.convention(this@Wsdl2JavaPluginExtension.includesWithOptions)
             bindingFile.convention(this@Wsdl2JavaPluginExtension.bindingFile)
+            bindingFiles.from(this@Wsdl2JavaPluginExtension.bindingFiles)
             generatedSourceDir.convention(layout.buildDirectory.dir("generated/sources/wsdl2java-$name/java"))
             options.convention(this@Wsdl2JavaPluginExtension.options)
             verbose.convention(this@Wsdl2JavaPluginExtension.verbose)

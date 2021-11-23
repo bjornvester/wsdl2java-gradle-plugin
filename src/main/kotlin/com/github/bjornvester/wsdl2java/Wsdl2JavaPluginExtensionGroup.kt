@@ -1,5 +1,6 @@
 package com.github.bjornvester.wsdl2java
 
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
@@ -11,7 +12,9 @@ interface Wsdl2JavaPluginExtensionGroup {
     val wsdlDir: DirectoryProperty
     val includes: ListProperty<String>
     val includesWithOptions: MapProperty<String, List<*>>
+    @Deprecated("Use the bindingFiles (in plural) instead", replaceWith = ReplaceWith("bindingFiles"))
     val bindingFile: RegularFileProperty
+    val bindingFiles: ConfigurableFileCollection
     val generatedSourceDir: DirectoryProperty
     val options: ListProperty<String>
     val verbose: Property<Boolean>

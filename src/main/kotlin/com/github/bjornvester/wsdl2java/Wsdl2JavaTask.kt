@@ -14,7 +14,6 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.internal.file.FileOperations
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.BasePlugin
-import org.gradle.api.provider.MapProperty
 import org.gradle.api.tasks.*
 import org.gradle.workers.WorkerExecutor
 import javax.inject.Inject
@@ -33,12 +32,18 @@ open class Wsdl2JavaTask @Inject constructor(
     val includes = objects.listProperty(String::class.java).convention(getWsdl2JavaExtension().includes)
 
     @get:Input
-    val includesWithOptions = objects.mapProperty(String::class.java, List::class.java).convention(getWsdl2JavaExtension().includesWithOptions)
+    val includesWithOptions = objects.mapProperty(String::class.java, List::class.java)
+        .convention(getWsdl2JavaExtension().includesWithOptions)
 
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     @Optional
     val bindingFile = objects.fileProperty().convention(getWsdl2JavaExtension().bindingFile)
+
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    @Optional
+    val bindingFiles = objects.fileCollection().from(getWsdl2JavaExtension().bindingFiles)
 
     @get:Input
     @Optional
@@ -49,7 +54,8 @@ open class Wsdl2JavaTask @Inject constructor(
     val verbose = objects.property(Boolean::class.java).convention(getWsdl2JavaExtension().verbose)
 
     @get:Input
-    val suppressGeneratedDate = objects.property(Boolean::class.java).convention(getWsdl2JavaExtension().suppressGeneratedDate)
+    val suppressGeneratedDate =
+        objects.property(Boolean::class.java).convention(getWsdl2JavaExtension().suppressGeneratedDate)
 
     @get:Input
     @Optional
@@ -63,10 +69,12 @@ open class Wsdl2JavaTask @Inject constructor(
     val wsdl2JavaConfiguration = project.configurations.named(WSDL2JAVA_CONFIGURATION_NAME)
 
     @get:Classpath
-    val xjcPluginsConfiguration: NamedDomainObjectProvider<Configuration> = project.configurations.named(XJC_PLUGINS_CONFIGURATION_NAME)
+    val xjcPluginsConfiguration: NamedDomainObjectProvider<Configuration> =
+        project.configurations.named(XJC_PLUGINS_CONFIGURATION_NAME)
 
     @get:OutputDirectory
-    val sourcesOutputDir: DirectoryProperty = objects.directoryProperty().convention(getWsdl2JavaExtension().generatedSourceDir)
+    val sourcesOutputDir: DirectoryProperty =
+        objects.directoryProperty().convention(getWsdl2JavaExtension().generatedSourceDir)
 
     init {
         group = BasePlugin.BUILD_GROUP
@@ -84,7 +92,7 @@ open class Wsdl2JavaTask @Inject constructor(
             /*
             All gradle worker processes have Xerces2 on the classpath.
             This version of Xerces does not support checking for external file access (even if not used).
-            This causes it to log a whole bunch of stack traces on the form:
+            This causes it to log a bunch of stack traces on the form:
             -- Property "http://javax.xml.XMLConstants/property/accessExternalSchema" is not supported by used JAXP implementation.
             To avoid this, we fork the worker API to a separate process where we can set system properties to select which implementation of a SAXParser to use.
             The JDK comes with an internal implementation of a SAXParser, also based on Xerces, but supports the properties to control external file access.
@@ -114,6 +122,7 @@ open class Wsdl2JavaTask @Inject constructor(
 
         if (includesWithOptions.isPresent && includesWithOptions.get().isNotEmpty()) {
             includesWithOptions.get().forEach { (includePattern, includeOptions) ->
+                @Suppress("UNCHECKED_CAST")
                 addWsdlToArgs(listOf(includePattern), defaultArgs + includeOptions as List<String>, wsdlToArgs)
             }
         } else {
@@ -187,10 +196,13 @@ open class Wsdl2JavaTask @Inject constructor(
 
         if (bindingFile.isPresent) {
             defaultArgs.addAll(
-                listOf(
-                    "-b",
-                    bindingFile.get().asFile.absolutePath
-                )
+                listOf("-b", bindingFile.get().asFile.absolutePath)
+            )
+        }
+
+        bindingFiles.forEach {
+            defaultArgs.addAll(
+                listOf("-b", it.absolutePath)
             )
         }
 
@@ -227,5 +239,6 @@ open class Wsdl2JavaTask @Inject constructor(
         }
     }
 
-    private fun getWsdl2JavaExtension() = project.extensions.getByName(WSDL2JAVA_EXTENSION_NAME) as Wsdl2JavaPluginExtension
+    private fun getWsdl2JavaExtension() =
+        project.extensions.getByName(WSDL2JAVA_EXTENSION_NAME) as Wsdl2JavaPluginExtension
 }

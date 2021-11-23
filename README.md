@@ -17,7 +17,7 @@ Apply the plugin ID "com.github.bjornvester.wsdl2java" as specific in the [Gradl
 
 ```kotlin
 plugins {
-    id("com.github.bjornvester.wsdl2java") version "1.2"
+    id("com.github.bjornvester.wsdl2java") version "1.3"
 }
 ```
 
@@ -42,7 +42,7 @@ Here is a list of all available properties:
 | includes                   | ListProperty\<String> | \["**/*.wsdl"]                                   | Inclusion filers (Ant style) for which WSDLs to include.                                                             |
 | includesWithOptions        | Map\<String, List>    | \[not set\]                                      | Inclusion filters like above, but with individual options. See below.                                                |
 | generatedSourceDir         | DirectoryProperty     | "$buildDir/generated<br>/sources/wsdl2java/java" | The output directory for the generated Java sources.<br>Note that it will be deleted when running XJC.               |
-| bindingFile                | RegularFileProperty   | \[not set\]                                      | A binding file to use in the schema compiler.                                                                        |
+| bindingFiles               | FileCollection        | \[empty\]                                        | The binding files to use in the schema compiler.                                                                     |
 | cxfVersion                 | Provider\<String>     | "3.4.4"                                          | The version of CXF to use.                                                                                           |
 | verbose                    | Provider\<Boolean>    | \[not set\]                                      | Enables verbose output from CXF. If not set, it will be be enabled only on the info logging level.                   |
 | suppressGeneratedDate      | Provider\<Boolean>    | true                                             | Suppresses generating dates in CXF. Default is true to support reproducible builds and to work with the build cache. |
@@ -135,12 +135,12 @@ includes = [
 ```
 
 ### Configure the output directory
-You can optionally specify the directory for the generated source through the `generatedSourceDir` property, which defaults to `buildDir/generated/sources/wsdl2java/java`.
+You can optionally specify the directory for the generated source through the `generatedSourceDir` property, which defaults to `$buildDir/generated/sources/wsdl2java/java`.
 Example:
 
 ```kotlin
 wsdl2java {
-    generatedSourceDir.set(layout.projectDirectory.dir("src/generated/wsdl2java"))
+    generatedSourceDir.set("src/generated/wsdl2java")
 }
 ```
 
@@ -151,7 +151,7 @@ A binding file can be added like this:
 
 ```kotlin
 wsdl2java {
-    bindingFile.set(layout.projectDirectory.file("src/main/bindings/binding.xjb"))
+    bindingFiles.from("src/main/bindings/binding.xjb")
 }
 ```
 
@@ -177,7 +177,7 @@ dependencies {
 }
 
 wsdl2java {
-    bindingFile.set(layout.projectDirectory.file("src/main/bindings/bindings.xjb"))
+    bindingFiles.from("src/main/bindings/bindings.xjb")
 }
 ```
 
@@ -193,14 +193,12 @@ wsdl2java {
 </bindings>
 ```
 
-Note that at the moment, it is not possible to specify more than one binding file in the extension. If you require this, use the `-b` option.
-
 ### Configuring package names
 The package name for the generated resources can be configured with the `packageName` field:
 
 ```kotlin
 wsdl2java {
-    packageName.set("com.github.bjornvester.wsdl2java.group1")
+    packageName.set("com.github.bjornvester.wsdl2java.mypackage")
 }
 
 ```
@@ -265,6 +263,32 @@ dependencies {
 
 wsdl2java {
     options.addAll("-xjc-Xequals", "-xjc-XhashCode")
+}
+```
+
+## Grouping resources with different configurations
+If you need to configure resources differently than what you can express with `includeWithOptions`, you can group them.
+This is useful mainly for specifying binding files as these would otherwise need to be specified with absolute paths, which breaks relocatability.
+
+To use them, configure the `groups` field (a type of `DomainObjectContainer`) and call `register` for each group.
+The plugin will then register a `wsdl2java` task for each.
+Any configurations set in the outermost level is considered default for them all.
+
+For example:
+
+```kotlin
+wsdl2java {
+    markGenerated.set("yes-jdk8") // default for all groups
+    groups {
+        register('service-a') {
+            includes.set(listOf("**/HelloWorldAService.wsdl"))
+            bindingFiles.from("src/main/bindings/binding-a.xjb")
+        }
+        register('service-b') {
+          includes.set(listOf("**/HelloWorldBService.wsdl"))
+          bindingFiles.from("src/main/bindings/binding-b.xjb")
+        }
+    }
 }
 ```
 

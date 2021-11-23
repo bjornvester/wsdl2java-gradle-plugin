@@ -1,13 +1,11 @@
-import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile
-
 plugins {
     `kotlin-dsl`
     id("java-gradle-plugin")
-    id("com.gradle.plugin-publish") version "0.14.0"
+    id("com.gradle.plugin-publish") version "0.18.0"
 }
 
 group = "com.github.bjornvester"
-version = "1.2"
+version = "1.3"
 
 repositories {
     mavenCentral()
@@ -26,23 +24,15 @@ tasks.withType<Test>().configureEach {
 }
 
 tasks.withType<Wrapper> {
-    gradleVersion = "7.1.1"
+    gradleVersion = "7.3"
 }
 
 dependencies {
-    compileOnly("org.apache.cxf:cxf-tools-wsdlto-core:3.4.3")
-    testImplementation("commons-io:commons-io:2.8.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
+    compileOnly("org.apache.cxf:cxf-tools-wsdlto-core:3.4.5")
+    testImplementation("commons-io:commons-io:2.11.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
-}
-
-val compiler = javaToolchains.compilerFor {
-    languageVersion.set(JavaLanguageVersion.of(8))
-}
-
-tasks.withType<KotlinJvmCompile>().configureEach {
-    kotlinOptions.jdkHome = compiler.get().metadata.installationPath.asFile.absolutePath
 }
 
 gradlePlugin {
@@ -63,13 +53,8 @@ pluginBundle {
         "wsdl2JavaPlugin" {
             displayName = "Gradle Wsdl2Java plugin"
             tags = listOf("wsdl2java", "cxf", "wsimport")
-            description = "Changes:\n" +
-                    "  - Verbose is now only enabled by default on the info logging level\n" +
-                    "  - The addition of dependencies to the implementation configuration for compiling the generated sources can now be disabled"
-                    "  - Added an option for configuring the package name of the generated sources (same as the -p option)"
-                    "  - Defaults to CXF version 3.4.4 (from 3.4.3)"
-                    "  - Changed default output directory from generated/sources/wsdl2java to generated/sources/wsdl2java/java"
-                    "  - Support grouping WSDLs and generate source code for them with different configurations (requires Gradle 7.0+). Not documented yet though."
+            description = "Changes:\n"
+                    "  - Add support for multiple binding files."
         }
     }
 }

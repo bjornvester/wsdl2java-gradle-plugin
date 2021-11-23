@@ -9,6 +9,6 @@ dependencies {
 }
 
 wsdl2java {
-    bindingFile.set(layout.projectDirectory.file("src/main/bindings/bindings.xml"))
+    bindingFiles.from("src/main/bindings/bindings.xml")
     markGenerated.set("yes-jdk8")
 }
