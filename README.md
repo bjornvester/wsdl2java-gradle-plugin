@@ -128,7 +128,7 @@ includesWithOptions.set(mapOf(
 
 ```groovy
 // For Groovy DSL
-includes = [
+includesWithOptions = [
   "**/ServiceA.wsdl" : ["-wsdlLocation", "https://example.com/service-a?wsdl"],
   "**/ServiceB.wsdl" : ["-wsdlLocation", "https://example.com/service-b?wsdl"]
 ]
