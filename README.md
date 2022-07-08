@@ -21,7 +21,7 @@ plugins {
 }
 ```
 
-Put your WSDL and referenced XSD files somewhere in your src/main/resource directory.
+Put your WSDL and referenced XSD files somewhere in your src/main/resources directory.
 By default, the plugin will create Java classes for all the WSDL files in the resource directory.
 
 The generated code will by default end up in the directory build/generated/sources/wsdl2java folder.
