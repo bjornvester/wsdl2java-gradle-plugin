@@ -30,7 +30,7 @@ tasks.withType<Wrapper> {
 }
 
 dependencies {
-    compileOnly("org.apache.cxf:cxf-tools-wsdlto-core:3.4.3")
+    compileOnly("org.apache.cxf:cxf-tools-wsdlto-core:3.5.3")
     testImplementation("commons-io:commons-io:2.8.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
