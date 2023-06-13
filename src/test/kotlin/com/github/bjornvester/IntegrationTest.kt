@@ -31,20 +31,22 @@ open class IntegrationTest {
                 .writeText(tempDir.resolve(SETTINGS_FILE).readText().replace("\"grouping-test\",", ""))
         }
 
-        if (GradleVersion.version(gradleVersion) < GradleVersion.version("6.7")) {
-            // If we test with an old version of Gradle that does not support toolchains, remove it
-            // Unfortunately, this means we have to test with whatever JDK we are running the build with
-            tempDir.resolve(JAVA_CONVENTIONS_FILE)
-                .writeText(tempDir.resolve(JAVA_CONVENTIONS_FILE).readText().replace("toolchain \\{.*?}".toRegex(DOT_MATCHES_ALL), ""))
-        } else {
-            // Set the Java version
-            tempDir.resolve(JAVA_CONVENTIONS_FILE)
-                .writeText(tempDir.resolve(JAVA_CONVENTIONS_FILE).readText().replace("JavaLanguageVersion.of(8)", "JavaLanguageVersion.of($javaVersion)"))
+        if (GradleVersion.version(gradleVersion) < GradleVersion.version("7.6")) {
+            // The Gradle toolchain provisioning is not supported in older versions
+            tempDir.resolve(SETTINGS_FILE)
+                .writeText(tempDir.resolve(SETTINGS_FILE).readText().replace("""id\("org.gradle.toolchains.foojay-resolver-convention"\).*""".toRegex(), ""))
         }
+
+        // Set the Java version
+        tempDir.resolve(JAVA_CONVENTIONS_FILE)
+            .writeText(
+                tempDir.resolve(JAVA_CONVENTIONS_FILE).readText()
+                    .replace("JavaLanguageVersion.of(8)", "JavaLanguageVersion.of($javaVersion)")
+            )
 
         // Set the 'markGenerated' property according to the JDK used
         // Set the Java version
-        if (javaVersion !in listOf("8", "NA")) {
+        if (javaVersion != "8") {
             tempDir.resolve(BUILD_FILE_WITH_MARK_GENERATED)
                 .writeText(tempDir.resolve(BUILD_FILE_WITH_MARK_GENERATED).readText().replace("yes-jdk8", "yes-jdk9"))
         }
@@ -85,10 +87,13 @@ open class IntegrationTest {
         @Suppress("unused")
         fun provideVersions(): Stream<Arguments?>? {
             return Stream.of(
-                Arguments.of("8", "7.0"),
-                Arguments.of("NA", "6.0"), // Minimum version of Gradle
-                Arguments.of("11", "7.0"),
-                Arguments.of("16", "7.0")
+                // Test various versions of Gradle, using Java 11
+                Arguments.of("8", "6.7"), // Minimum required version of Gradle
+                Arguments.of("8", "7.6.1"),
+                Arguments.of("8", "8.1.1"),
+                // Test various versions of Java, other than one used above, and using the newest (at this time) version of Gradle
+                Arguments.of("11", "8.1.1"),
+                Arguments.of("17", "8.1.1")
             )
         }
     }

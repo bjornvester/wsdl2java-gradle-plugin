@@ -11,7 +11,7 @@ import org.gradle.util.GradleVersion
 
 class Wsdl2JavaPlugin : Plugin<Project> {
     companion object {
-        const val MINIMUM_GRADLE_VERSION = "6.0"
+        const val MINIMUM_GRADLE_VERSION = "6.7"
         const val MINIMUM_GRADLE_VERSION_GROUPING = "7.0"
         const val PLUGIN_ID = "com.github.bjornvester.wsdl2java"
         const val WSDL2JAVA_TASK_NAME = "wsdl2java"
@@ -55,12 +55,12 @@ class Wsdl2JavaPlugin : Plugin<Project> {
                 enabled = false
             }
 
-            addWsdl2JavaTask(WSDL2JAVA_TASK_NAME + name.capitalize(), project, this)
+            addWsdl2JavaTask(WSDL2JAVA_TASK_NAME + name.replaceFirstChar(Char::titlecase), project, this)
         }
     }
 
     private fun addWsdl2JavaTask(name: String, project: Project, group: Wsdl2JavaPluginExtensionGroup): TaskProvider<Wsdl2JavaTask> {
-        var wsdl2JavaTask = project.tasks.register(name, Wsdl2JavaTask::class.java) {
+        val wsdl2JavaTask = project.tasks.register(name, Wsdl2JavaTask::class.java) {
             wsdlInputDir.convention(group.wsdlDir)
             includes.convention(group.includes)
             includesWithOptions.convention(group.includesWithOptions)

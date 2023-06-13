@@ -14,7 +14,7 @@ import javax.xml.ws.Endpoint;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class HelloWorldTest {
-    String serviceAddress = "http://localhost:8899/HellowWorldService";
+    String serviceAddress = "http://localhost:8899/HelloWorldService";
     Endpoint endpoint;
 
     @AfterEach

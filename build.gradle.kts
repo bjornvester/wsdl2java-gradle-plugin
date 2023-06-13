@@ -1,18 +1,24 @@
-import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile
-
 plugins {
     `kotlin-dsl`
     id("java-gradle-plugin")
-    id("com.gradle.plugin-publish") version "0.14.0"
+    id("com.gradle.plugin-publish") version "1.2.0"
 }
 
 group = "com.github.bjornvester"
-version = "1.2"
+version = "1.3-SNAPSHOT"
 
 repositories {
     mavenCentral()
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+    }
+}
+
+// The integration test folder is an input to the unit test in the root project
+// Register these files as inputs
 tasks.withType<Test>().configureEach {
     inputs
         .files(layout.projectDirectory.dir("integration-test").asFileTree.matching {
@@ -26,7 +32,7 @@ tasks.withType<Test>().configureEach {
 }
 
 tasks.withType<Wrapper> {
-    gradleVersion = "7.1.1"
+    gradleVersion = "8.1.1"
 }
 
 dependencies {
@@ -37,39 +43,20 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
-val compiler = javaToolchains.compilerFor {
-    languageVersion.set(JavaLanguageVersion.of(8))
-}
-
-tasks.withType<KotlinJvmCompile>().configureEach {
-    kotlinOptions.jdkHome = compiler.get().metadata.installationPath.asFile.absolutePath
-}
-
 gradlePlugin {
+    website.set("https://github.com/bjornvester/wsdl2java-gradle-plugin")
+    vcsUrl.set("https://github.com/bjornvester/wsdl2java-gradle-plugin")
     plugins {
         create("wsdl2JavaPlugin") {
             id = "com.github.bjornvester.wsdl2java"
-            implementationClass = "com.github.bjornvester.wsdl2java.Wsdl2JavaPlugin"
-        }
-    }
-}
-
-pluginBundle {
-    website = "https://github.com/bjornvester/wsdl2java-gradle-plugin"
-    vcsUrl = "https://github.com/bjornvester/wsdl2java-gradle-plugin"
-    description = """Adds the CXF wsdl2java tool to your project. Works with Java 8 and 11, and supports the Gradle build cache.
+            description = """Adds the CXF wsdl2java tool to your project. Works with Java 8, 11 and 17, and supports the Gradle build cache.
         |Please see the Github project page for details.""".trimMargin()
-    (plugins) {
-        "wsdl2JavaPlugin" {
             displayName = "Gradle Wsdl2Java plugin"
-            tags = listOf("wsdl2java", "cxf", "wsimport")
+            tags.set(listOf("wsdl2java", "cxf", "wsimport"))
+            implementationClass = "com.github.bjornvester.wsdl2java.Wsdl2JavaPlugin"
             description = "Changes:\n" +
-                    "  - Verbose is now only enabled by default on the info logging level\n" +
-                    "  - The addition of dependencies to the implementation configuration for compiling the generated sources can now be disabled"
-                    "  - Added an option for configuring the package name of the generated sources (same as the -p option)"
-                    "  - Defaults to CXF version 3.4.4 (from 3.4.3)"
-                    "  - Changed default output directory from generated/sources/wsdl2java to generated/sources/wsdl2java/java"
-                    "  - Support grouping WSDLs and generate source code for them with different configurations (requires Gradle 7.0+). Not documented yet though."
+                    "  - Minimum required of version of Gradle is now 6.7 (up from 6.0).\n" +
+                    "  - TODO."
         }
     }
 }

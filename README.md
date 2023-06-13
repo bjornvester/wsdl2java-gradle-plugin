@@ -5,11 +5,12 @@
 A Gradle plugin for generating Java classes from WSDL files through CXF.
 
 ## Requirements and main features
-* The plugin requires Gradle 6.0 or later. (Tested with Gradle 6.0 and 7.0.)
-* It has been tested with Java 8, 11 and 16. It does not (yet) support running it with a custom toolchain.
+* The plugin requires Gradle 6.7 or later. (Tested with Gradle 6, 7 and 8.)
+* It has been tested with Java 8, 11 and 17. It does not (yet) support running it with a custom toolchain.
 * It supports the Gradle build cache (enabled by setting "org.gradle.caching=true" in your gradle.properties file).
 * It supports project relocation for the build cache (e.g. you move your project to a new path, or make a new copy/clone of it).
   This is especially useful in a CI context, where you might clone PRs and/or branches for a repository in their own locations.
+  Note, however, that there is an issue in an Apache library that might break this - see below for details.
 * It supports parallel execution (enabled with "org.gradle.parallel=true" in your gradle.properties file), though it does not itself run anything in parallel.
 
 ## Configuration
@@ -284,7 +285,16 @@ There are full examples available in the integration-test directory.
 If you need to compile additional XML schemas (xsd files) not directly referenced by the wsdl files, you can use the [com.github.bjornvester.xjc](https://plugins.gradle.org/plugin/com.github.bjornvester.xjc) plugin in addition.
 
 ## Limitations
+### CXF does not check for unique names in generated resources  
 The CXF tool will overwrite generated classes from multiple WSDL files if they have the same qualified name.
 Especially the `ObjectFactory` might be overwritten, which is annoying.
 There is a similar plugin [here](https://github.com/nilsmagnus/wsdl2java) that can merge them together, but it is deprecated.
-I hope to port that functionality into this plugin at some point.
+
+### CXF is not deterministic
+When CXF generates an `ObjectFactory`, the order of the methods are not deterministic, but depend on the absolute path of the input files.
+This may cause misses in the Gradle build cache, ecp, which may propagate to downstream projects, resulting in long build times.
+I have a local fix for this and I hope to create a PR for it to the relevant Apache project.
+
+## Contributions
+I often feel a bit stretched out in terms of maintaining this and my projects.
+For that reason, I might not respond to issues and PRs very often.
