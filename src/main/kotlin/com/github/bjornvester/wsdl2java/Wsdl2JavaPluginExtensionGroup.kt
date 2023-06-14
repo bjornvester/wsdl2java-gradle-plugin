@@ -16,6 +16,7 @@ interface Wsdl2JavaPluginExtensionGroup {
     val options: ListProperty<String>
     val verbose: Property<Boolean>
     val suppressGeneratedDate: Property<Boolean>
-    val markGenerated: Property<String>
+    val markGenerated: Property<Boolean>
+    val generatedStyle: Property<String>
     val packageName: Property<String>
 }

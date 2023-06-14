@@ -12,7 +12,7 @@ abstract class Wsdl2JavaWorker : WorkAction<Wsdl2JavaWorkerParams> {
 
     override fun execute() {
         parameters.wsdlToArgs.forEach { (wsdlPath, args) ->
-            logger.info("Running WSDLToJava tool on file {] with args: {}", wsdlPath, args)
+            logger.info("Running WSDLToJava tool on file {} with args: {}", wsdlPath, args)
 
             try {
                 WSDLToJava(args.toTypedArray()).run(ToolContext())
@@ -20,7 +20,7 @@ abstract class Wsdl2JavaWorker : WorkAction<Wsdl2JavaWorkerParams> {
                 // We can't propagate the exception as it might contain classes from CXF which are not available outside the worker execution context
                 // Also, for some reason, we can't even log the error as it sometimes fails with:
                 // java.io.StreamCorruptedException: invalid type code: 0C
-                // Seems like a bug in Gradle, possible with the error message contain multiple lines
+                // Seems like a bug in Gradle, possible when the error message contain multiple lines
                 // Until we have found the cause of it, we print directly to System.out
                 logger.error("Failed to generate sources from WSDL:")
                 e.printStackTrace()
@@ -32,13 +32,22 @@ abstract class Wsdl2JavaWorker : WorkAction<Wsdl2JavaWorkerParams> {
     }
 
     private fun fixGeneratedAnnotations() {
-        if (parameters.switchGeneratedAnnotation || parameters.removeDateFromGeneratedAnnotation) {
+        if (parameters.generatedStyle !=  Wsdl2JavaPluginExtension.GENERATED_STYLE_DEFAULT || parameters.removeDateFromGeneratedAnnotation) {
             parameters.outputDir.asFileTree.forEach {
-                logger.debug("Fixing the @Generated annotation in file $it")
+                logger.debug("Fixing the @Generated annotation in file {}", it)
                 var source = it.readText()
 
-                if (parameters.switchGeneratedAnnotation) {
-                    source = source.replaceFirst("import javax.annotation.Generated", "import javax.annotation.processing.Generated")
+                when (parameters.generatedStyle) {
+                    Wsdl2JavaPluginExtension.GENERATED_STYLE_JDK8 -> {
+                        source = source.replaceFirst("import jakarta.annotation.Generated", "import javax.annotation.Generated")
+                    }
+                    Wsdl2JavaPluginExtension.GENERATED_STYLE_JDK9 -> {
+                        source = source.replaceFirst("import jakarta.annotation.Generated", "import javax.annotation.processing.Generated")
+                        source = source.replaceFirst("import javax.annotation.Generated", "import javax.annotation.processing.Generated")
+                    }
+                    Wsdl2JavaPluginExtension.GENERATED_STYLE_JAKARTA -> {
+                        source = source.replaceFirst("import javax.annotation.Generated", "jakarta.annotation.Generated")
+                    }
                 }
 
                 if (parameters.removeDateFromGeneratedAnnotation) {
