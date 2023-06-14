@@ -6,6 +6,6 @@ import org.gradle.workers.WorkParameters
 interface Wsdl2JavaWorkerParams : WorkParameters {
     var wsdlToArgs: Map<String, List<String>>
     var outputDir: Directory
-    var switchGeneratedAnnotation: Boolean
     var removeDateFromGeneratedAnnotation: Boolean
+    var generatedStyle: String
 }

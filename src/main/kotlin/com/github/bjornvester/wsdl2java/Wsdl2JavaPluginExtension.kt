@@ -7,8 +7,9 @@ import org.gradle.api.provider.Property
 import javax.inject.Inject
 
 open class Wsdl2JavaPluginExtension @Inject constructor(objects: ObjectFactory, layout: ProjectLayout) : Wsdl2JavaPluginExtensionGroup {
-    val cxfVersion = objects.property(String::class.java).convention("3.4.4")
-    val addCompilationDependencies = objects.property(Boolean::class.java).convention(true)
+    val useJakarta: Property<Boolean> = objects.property(Boolean::class.java).convention(true)
+    val cxfVersion: Property<String> = objects.property(String::class.java).convention(useJakarta.map { if (it) "4.0.2" else "3.5.6" })
+    val addCompilationDependencies: Property<Boolean> = objects.property(Boolean::class.java).convention(true)
 
     override val name = "Defaults"
     override val wsdlDir = objects.directoryProperty().convention(layout.projectDirectory.dir("src/main/resources"))
@@ -19,7 +20,8 @@ open class Wsdl2JavaPluginExtension @Inject constructor(objects: ObjectFactory, 
     override val options = objects.listProperty(String::class.java)
     override val verbose = objects.property(Boolean::class.java)
     override val suppressGeneratedDate = objects.property(Boolean::class.java).convention(true)
-    override val markGenerated = objects.property(String::class.java).convention(MARK_GENERATED_NO)
+    override val markGenerated = objects.property(Boolean::class.java).convention(false)
+    override val generatedStyle = objects.property(String::class.java).convention(GENERATED_STYLE_DEFAULT)
     override val packageName = objects.property(String::class.java)
 
     val groups: NamedDomainObjectContainer<Wsdl2JavaPluginExtensionGroup> = objects.domainObjectContainer(Wsdl2JavaPluginExtensionGroup::class.java)
@@ -35,18 +37,22 @@ open class Wsdl2JavaPluginExtension @Inject constructor(objects: ObjectFactory, 
             verbose.convention(this@Wsdl2JavaPluginExtension.verbose)
             suppressGeneratedDate.convention(this@Wsdl2JavaPluginExtension.suppressGeneratedDate)
             markGenerated.convention(this@Wsdl2JavaPluginExtension.markGenerated)
+            generatedStyle.convention(this@Wsdl2JavaPluginExtension.generatedStyle)
             packageName.convention(this@Wsdl2JavaPluginExtension.packageName)
         }
     }
 
     companion object {
         @JvmStatic
-        val MARK_GENERATED_NO = "no"
+        val GENERATED_STYLE_DEFAULT = "default"
 
         @JvmStatic
-        val MARK_GENERATED_YES_JDK8 = "yes-jdk8"
+        val GENERATED_STYLE_JDK8 = "jdk8"
 
         @JvmStatic
-        val MARK_GENERATED_YES_JDK9 = "yes-jdk9"
+        val GENERATED_STYLE_JDK9 = "jdk9"
+
+        @JvmStatic
+        val GENERATED_STYLE_JAKARTA = "jakarta"
     }
 }

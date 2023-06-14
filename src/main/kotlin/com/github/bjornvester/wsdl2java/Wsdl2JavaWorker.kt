@@ -32,13 +32,22 @@ abstract class Wsdl2JavaWorker : WorkAction<Wsdl2JavaWorkerParams> {
     }
 
     private fun fixGeneratedAnnotations() {
-        if (parameters.switchGeneratedAnnotation || parameters.removeDateFromGeneratedAnnotation) {
+        if (parameters.generatedStyle !=  Wsdl2JavaPluginExtension.GENERATED_STYLE_DEFAULT || parameters.removeDateFromGeneratedAnnotation) {
             parameters.outputDir.asFileTree.forEach {
                 logger.debug("Fixing the @Generated annotation in file {}", it)
                 var source = it.readText()
 
-                if (parameters.switchGeneratedAnnotation) {
-                    source = source.replaceFirst("import javax.annotation.Generated", "import javax.annotation.processing.Generated")
+                when (parameters.generatedStyle) {
+                    Wsdl2JavaPluginExtension.GENERATED_STYLE_JDK8 -> {
+                        source = source.replaceFirst("import jakarta.annotation.Generated", "import javax.annotation.Generated")
+                    }
+                    Wsdl2JavaPluginExtension.GENERATED_STYLE_JDK9 -> {
+                        source = source.replaceFirst("import jakarta.annotation.Generated", "import javax.annotation.processing.Generated")
+                        source = source.replaceFirst("import javax.annotation.Generated", "import javax.annotation.processing.Generated")
+                    }
+                    Wsdl2JavaPluginExtension.GENERATED_STYLE_JAKARTA -> {
+                        source = source.replaceFirst("import javax.annotation.Generated", "jakarta.annotation.Generated")
+                    }
                 }
 
                 if (parameters.removeDateFromGeneratedAnnotation) {

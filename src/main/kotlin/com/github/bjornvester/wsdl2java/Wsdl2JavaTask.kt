@@ -1,29 +1,28 @@
 package com.github.bjornvester.wsdl2java
 
-import com.github.bjornvester.wsdl2java.Wsdl2JavaPlugin.Companion.WSDL2JAVA_CONFIGURATION_NAME
 import com.github.bjornvester.wsdl2java.Wsdl2JavaPlugin.Companion.WSDL2JAVA_EXTENSION_NAME
-import com.github.bjornvester.wsdl2java.Wsdl2JavaPlugin.Companion.XJC_PLUGINS_CONFIGURATION_NAME
-import com.github.bjornvester.wsdl2java.Wsdl2JavaPluginExtension.Companion.MARK_GENERATED_NO
-import com.github.bjornvester.wsdl2java.Wsdl2JavaPluginExtension.Companion.MARK_GENERATED_YES_JDK8
-import com.github.bjornvester.wsdl2java.Wsdl2JavaPluginExtension.Companion.MARK_GENERATED_YES_JDK9
+import com.github.bjornvester.wsdl2java.Wsdl2JavaPluginExtension.Companion.GENERATED_STYLE_DEFAULT
+import com.github.bjornvester.wsdl2java.Wsdl2JavaPluginExtension.Companion.GENERATED_STYLE_JAKARTA
+import com.github.bjornvester.wsdl2java.Wsdl2JavaPluginExtension.Companion.GENERATED_STYLE_JDK8
+import com.github.bjornvester.wsdl2java.Wsdl2JavaPluginExtension.Companion.GENERATED_STYLE_JDK9
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
-import org.gradle.api.NamedDomainObjectProvider
-import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.internal.file.FileOperations
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.BasePlugin
-import org.gradle.api.provider.MapProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
+import org.gradle.jvm.toolchain.JavaLauncher
 import org.gradle.workers.WorkerExecutor
 import javax.inject.Inject
 
+
 @CacheableTask
-open class Wsdl2JavaTask @Inject constructor(
-    private val workerExecutor: WorkerExecutor,
-    private val fileOperations: FileOperations,
-    objects: ObjectFactory
+abstract class Wsdl2JavaTask @Inject constructor(
+        private val workerExecutor: WorkerExecutor,
+        private val fileOperations: FileOperations,
+        objects: ObjectFactory
 ) : DefaultTask() {
     @get:InputDirectory
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -53,20 +52,27 @@ open class Wsdl2JavaTask @Inject constructor(
 
     @get:Input
     @Optional
-    val markGenerated = objects.property(String::class.java).convention(getWsdl2JavaExtension().markGenerated)
+    val markGenerated = objects.property(Boolean::class.java).convention(getWsdl2JavaExtension().markGenerated)
+
+    @get:Input
+    @Optional
+    val generatedStyle = objects.property(String::class.java).convention(getWsdl2JavaExtension().generatedStyle)
 
     @get:Input
     @Optional
     val packageName = objects.property(String::class.java).convention(getWsdl2JavaExtension().packageName)
 
     @get:Classpath
-    val wsdl2JavaConfiguration = project.configurations.named(WSDL2JAVA_CONFIGURATION_NAME)
+    val wsdl2JavaConfiguration = objects.fileCollection()
 
     @get:Classpath
-    val xjcPluginsConfiguration: NamedDomainObjectProvider<Configuration> = project.configurations.named(XJC_PLUGINS_CONFIGURATION_NAME)
+    val xjcPluginsConfiguration = objects.fileCollection()
 
     @get:OutputDirectory
     val sourcesOutputDir: DirectoryProperty = objects.directoryProperty().convention(getWsdl2JavaExtension().generatedSourceDir)
+
+    @get:Nested
+    val javaLauncher: Property<JavaLauncher> = objects.property(JavaLauncher::class.java)
 
     init {
         group = BasePlugin.BUILD_GROUP
@@ -81,19 +87,21 @@ open class Wsdl2JavaTask @Inject constructor(
         fileOperations.mkdir(sourcesOutputDir)
 
         val workerExecutor = workerExecutor.processIsolation {
+            forkOptions.executable = javaLauncher.get().executablePath.asFile.absolutePath;
+
             /*
             All gradle worker processes have Xerces2 on the classpath.
             This version of Xerces does not support checking for external file access (even if not used).
-            This causes it to log a whole bunch of stack traces on the form:
+            This causes it to log a bunch of stack traces on the form:
             -- Property "http://javax.xml.XMLConstants/property/accessExternalSchema" is not supported by used JAXP implementation.
             To avoid this, we fork the worker API to a separate process where we can set system properties to select which implementation of a SAXParser to use.
             The JDK comes with an internal implementation of a SAXParser, also based on Xerces, but supports the properties to control external file access.
             */
             forkOptions.systemProperties = mapOf(
-                "javax.xml.parsers.DocumentBuilderFactory" to "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl",
-                "javax.xml.parsers.SAXParserFactory" to "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl",
-                "javax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema" to "org.apache.xerces.internal.jaxp.validation.XMLSchemaFactory",
-                "javax.xml.accessExternalSchema" to "all"
+                    "javax.xml.parsers.DocumentBuilderFactory" to "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl",
+                    "javax.xml.parsers.SAXParserFactory" to "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl",
+                    "javax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema" to "org.apache.xerces.internal.jaxp.validation.XMLSchemaFactory",
+                    "javax.xml.accessExternalSchema" to "all"
             )
 
             if (logger.isDebugEnabled) {
@@ -101,12 +109,13 @@ open class Wsdl2JavaTask @Inject constructor(
                 forkOptions.systemProperties["com.sun.tools.xjc.Options.findServices"] = ""
             }
 
-            // Set encoding (work-around for https://github.com/gradle/gradle/issues/13843)
+            // Set encoding (work-around for https://github.com/gradle/gradle/issues/
+            // Might be fixed in Gradle 8.3 (unreleased at the time of this writing)
             forkOptions.environment("LANG", System.getenv("LANG") ?: "C.UTF-8")
 
             classpath
-                .from(wsdl2JavaConfiguration)
-                .from(xjcPluginsConfiguration)
+                    .from(wsdl2JavaConfiguration)
+                    .from(xjcPluginsConfiguration)
         }
 
         val defaultArgs = buildDefaultArguments()
@@ -125,54 +134,50 @@ open class Wsdl2JavaTask @Inject constructor(
         workerExecutor.submit(Wsdl2JavaWorker::class.java) {
             this.wsdlToArgs = wsdlToArgs
             outputDir = sourcesOutputDir.get()
-            switchGeneratedAnnotation = (markGenerated.get() == MARK_GENERATED_YES_JDK9)
-            removeDateFromGeneratedAnnotation =
-                (markGenerated.get() in listOf(
-                    MARK_GENERATED_YES_JDK8,
-                    MARK_GENERATED_YES_JDK9
-                )) && suppressGeneratedDate.get()
+            generatedStyle = this@Wsdl2JavaTask.generatedStyle.get()
+            removeDateFromGeneratedAnnotation = (markGenerated.get() && suppressGeneratedDate.get())
         }
     }
 
     private fun addWsdlToArgs(
-        includePattern: List<String>?,
-        defaultArgs: List<String>,
-        wsdlToArgs: MutableMap<String, List<String>>
+            includePattern: List<String>?,
+            defaultArgs: List<String>,
+            wsdlToArgs: MutableMap<String, List<String>>
     ) {
         wsdlInputDir
-            .asFileTree
-            .matching { if (includePattern != null) include(includePattern) }
-            .forEach { wsdlFile ->
-                val computedArgs = mutableListOf<String>()
-                computedArgs.addAll(defaultArgs)
+                .asFileTree
+                .matching { if (includePattern != null) include(includePattern) }
+                .forEach { wsdlFile ->
+                    val computedArgs = mutableListOf<String>()
+                    computedArgs.addAll(defaultArgs)
 
-                if (!computedArgs.contains("-wsdlLocation")) {
-                    computedArgs.addAll(
-                        listOf(
-                            "-wsdlLocation",
-                            wsdlFile.relativeTo(wsdlInputDir.asFile.get()).invariantSeparatorsPath
+                    if (!computedArgs.contains("-wsdlLocation")) {
+                        computedArgs.addAll(
+                                listOf(
+                                        "-wsdlLocation",
+                                        wsdlFile.relativeTo(wsdlInputDir.asFile.get()).invariantSeparatorsPath
+                                )
                         )
-                    )
-                }
+                    }
 
-                computedArgs.add(wsdlFile.path)
-                wsdlToArgs[wsdlFile.path] = computedArgs
-            }
+                    computedArgs.add(wsdlFile.path)
+                    wsdlToArgs[wsdlFile.path] = computedArgs
+                }
     }
 
     private fun buildDefaultArguments(): MutableList<String> {
         val defaultArgs = mutableListOf(
-            "-xjc-disableXmlSecurity",
-            "-autoNameResolution",
-            "-d",
-            sourcesOutputDir.get().toString()
+                "-xjc-disableXmlSecurity",
+                "-autoNameResolution",
+                "-d",
+                sourcesOutputDir.get().toString()
         )
 
         if (suppressGeneratedDate.get()) {
             defaultArgs.add("-suppress-generated-date")
         }
 
-        if (markGenerated.get() in listOf(MARK_GENERATED_YES_JDK8, MARK_GENERATED_YES_JDK9)) {
+        if (markGenerated.get()) {
             defaultArgs.add("-mark-generated")
         }
 
@@ -187,10 +192,10 @@ open class Wsdl2JavaTask @Inject constructor(
 
         if (bindingFile.isPresent) {
             defaultArgs.addAll(
-                listOf(
-                    "-b",
-                    bindingFile.get().asFile.absolutePath
-                )
+                    listOf(
+                            "-b",
+                            bindingFile.get().asFile.absolutePath
+                    )
             )
         }
 
@@ -202,19 +207,19 @@ open class Wsdl2JavaTask @Inject constructor(
     }
 
     private fun validateOptions() {
-        val supportedMarkGeneratedValues = listOf(MARK_GENERATED_NO, MARK_GENERATED_YES_JDK8, MARK_GENERATED_YES_JDK9)
-        if (markGenerated.get() !in supportedMarkGeneratedValues) {
-            throw GradleException("The property 'markGenerated' had an invalid value '${markGenerated.get()}'. Supported values are: $supportedMarkGeneratedValues")
+        val supportedGeneratedStyleValues = listOf(GENERATED_STYLE_DEFAULT, GENERATED_STYLE_JDK8, GENERATED_STYLE_JDK9, GENERATED_STYLE_JAKARTA)
+        if (generatedStyle.get() !in supportedGeneratedStyleValues) {
+            throw GradleException("The property 'markGenerated' had an invalid value '${markGenerated.get()}'. Supported values are: $supportedGeneratedStyleValues")
         }
 
         if (options.isPresent || includesWithOptions.isPresent) {
             val prohibitedOptions = mapOf(
-                "-verbose" to "Configured through the 'verbose' property",
-                "-d" to "Configured through the 'generatedSourceDir' property",
-                "-p" to "Configured through the 'packageName' property",
-                "-suppress-generated-date" to "Configured through the 'suppressGeneratedDate' property",
-                "-mark-generated" to "Configured through the 'markGenerated' property",
-                "-autoNameResolution" to "Configured automatically and cannot currently be overridden"
+                    "-verbose" to "Configured through the 'verbose' property",
+                    "-d" to "Configured through the 'generatedSourceDir' property",
+                    "-p" to "Configured through the 'packageName' property",
+                    "-suppress-generated-date" to "Configured through the 'suppressGeneratedDate' property",
+                    "-mark-generated" to "Configured through the 'markGenerated' property",
+                    "-autoNameResolution" to "Configured automatically and cannot currently be overridden"
             )
 
             // Note that we allow specifying binding file(s) through the -b parameter, as we otherwise can't configure individual bindings pr. wsdl
