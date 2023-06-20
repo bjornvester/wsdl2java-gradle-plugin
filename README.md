@@ -7,7 +7,7 @@ A Gradle plugin for generating Java classes from WSDL files through CXF.
 
 ## Requirements and main features
 
-* The plugin requires Gradle 6.7 or later. (Tested with Gradle 6, 7 and 8.)
+* The plugin requires Gradle 7.6 or later. (Tested with Gradle 7 and 8.)
 * For using the Jakarta namespace (default), the plugin requires Java 17 or greater. For the older javax namespace, you can use Java 8, 11 or 17.
 * It supports the Gradle build cache (enabled by setting `org.gradle.caching=true` in your gradle.properties file).
 * It supports the Gradle configuration cache (enabled by setting `org.gradle.configuration-cache=true` in your gradle.properties file").
@@ -18,12 +18,11 @@ A Gradle plugin for generating Java classes from WSDL files through CXF.
 
 ## Configuration
 
-Apply the plugin ID "com.github.bjornvester.wsdl2java" as specific in
-the [Gradle Plugin portal page](https://plugins.gradle.org/plugin/com.github.bjornvester.wsdl2java), e.g. like this:
+Apply the plugin ID "com.github.bjornvester.wsdl2java" as specific in the [Gradle Plugin portal page](https://plugins.gradle.org/plugin/com.github.bjornvester.wsdl2java), e.g. like this:
 
 ```kotlin
 plugins {
-    id("com.github.bjornvester.wsdl2java") version "2.0"
+    id("com.github.bjornvester.wsdl2java") version "2.0.1"
 }
 ```
 
@@ -49,8 +48,8 @@ Here is a list of all available properties:
 | includesWithOptions        | Map\<String, List>    | \[not set\]                                      | Inclusion filters like above, but with individual options. See below.                                                                                                                                                                    |
 | generatedSourceDir         | DirectoryProperty     | "$buildDir/generated<br>/sources/wsdl2java/java" | The output directory for the generated Java sources.<br>Note that it will be deleted when running XJC.                                                                                                                                   |
 | bindingFile                | RegularFileProperty   | \[not set\]                                      | A binding file to use in the schema compiler.                                                                                                                                                                                            |
-| cxfVersion                 | Provider\<String>     | "4.0.2" for jakarta / 3.5.6 for javax            | The version of CXF to use. Use a version >= 4 for `jakarta` and below for `javax`.                                                                                                                                                       |
 | useJakarta                 | Provider\<Boolean>    | true                                             | Set to use the `jakarta` namespace. If false, uses the `javax` namespace. This value also determines the default version of CXF.                                                                                                         |
+| cxfVersion                 | Provider\<String>     | "4.0.2" for jakarta / 3.5.6 for javax            | The version of CXF to use. Use a version >= 4 for `jakarta` and below for `javax`.                                                                                                                                                       |
 | verbose                    | Provider\<Boolean>    | \[not set\]                                      | Enables verbose output from CXF. If not set, it will be be enabled only on the info logging level.                                                                                                                                       |
 | markGenerated              | Provider\<Boolean>    | "no"                                             | Adds the @Generated annotation to the generated sources. See below for details as there are some gotchas with this.                                                                                                                      |
 | generatedStyle             | Provider\<String>     | "default"                                        | If using the @Generated annotation, select the type can be overridden by this. See below for details.                                                                                                                                    |
@@ -211,15 +210,16 @@ wsdl2java {
 
 <bindings xmlns="https://jakarta.ee/xml/ns/jaxb"
           xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
-          jaxb:version="3.0">
-    <globalBindings>
-        <xjc:javaType name="java.time.LocalDate" xmlType="xs:date" adapter="io.github.threetenjaxb.core.LocalDateXmlAdapter"/>
-        <xjc:javaType name="java.time.LocalDateTime" xmlType="xs:dateTime" adapter="io.github.threetenjaxb.core.LocalDateTimeXmlAdapter"/>
-        <xjc:javaType name="java.time.YearMonth" xmlType="xs:gYearMonth" adapter="io.github.threetenjaxb.core.YearMonthXmlAdapter"/>
-        <xjc:javaType name="java.time.Duration" xmlType="xs:duration" adapter="io.github.threetenjaxb.core.DurationXmlAdapter"/>
-        <xjc:javaType name="java.time.OffsetDate" xmlType="xs:date" adapter="io.github.threetenjaxb.core.OffsetTimeXmlAdapter"/>
-        <xjc:javaType name="java.time.OffsetDateTime" xmlType="xs:dateTime" adapter="io.github.threetenjaxb.core.OffsetDateTimeXmlAdapter"/>
-    </globalBindings>
+          version="3.0"
+          extensionBindingPrefixes="xjc">
+  <globalBindings>
+    <xjc:javaType name="java.time.LocalDate" xmlType="xs:date" adapter="io.github.threetenjaxb.core.LocalDateXmlAdapter"/>
+    <xjc:javaType name="java.time.LocalDateTime" xmlType="xs:dateTime" adapter="io.github.threetenjaxb.core.LocalDateTimeXmlAdapter"/>
+    <xjc:javaType name="java.time.YearMonth" xmlType="xs:gYearMonth" adapter="io.github.threetenjaxb.core.YearMonthXmlAdapter"/>
+    <xjc:javaType name="java.time.Duration" xmlType="xs:duration" adapter="io.github.threetenjaxb.core.DurationXmlAdapter"/>
+    <xjc:javaType name="java.time.OffsetDate" xmlType="xs:date" adapter="io.github.threetenjaxb.core.OffsetTimeXmlAdapter"/>
+    <xjc:javaType name="java.time.OffsetDateTime" xmlType="xs:dateTime" adapter="io.github.threetenjaxb.core.OffsetDateTimeXmlAdapter"/>
+  </globalBindings>
 </bindings>
 ```
 
@@ -281,8 +281,8 @@ the [JAXB2 Basics](https://github.com/highsource/jaxb2-basics) project, configur
 ```kotlin
 dependencies {
     // For CXF 3 and javax only (does not work with CXF 4 and jakarta):
-    implementation("org.jvnet.jaxb2_commons:jaxb2-basics-runtime:1.11.1")
-    xjcPlugins("org.jvnet.jaxb2_commons:jaxb2-basics:1.11.1")
+    implementation("org.jvnet.jaxb2_commons:jaxb2-basics-runtime:0.13.1")
+    xjcPlugins("org.jvnet.jaxb2_commons:jaxb2-basics:0.13.1")
 }
 
 wsdl2java {
@@ -341,6 +341,29 @@ wsdl2java {
 }
 ```
 
+## Groups
+If the `includesWithOptions` is not enough, you can also make groups of WSDL files, each having their own extension.
+This is done like this:
+
+```kotlin
+wsdl2java {
+    groups {
+        register("group1") {
+            includes.set(listOf("**/HelloWorldAService.wsdl"))
+            options.set(listOf("-wsdlLocation", "MyLocationA"))
+            packageName.set("com.github.bjornvester.wsdl2java.group1")
+        }
+        register("group2") {
+            includes.set(listOf("**/HelloWorldBService.wsdl"))
+            options.set(listOf("-wsdlLocation", "MyLocationB"))
+            packageName.set("com.github.bjornvester.wsdl2java.group2")
+        }
+    }
+}
+```
+
+In order to avoid generating resources with the same name but different content (for instance like the generated `ObjectFactory` class), you should make sure each group use its own package name.
+
 ## Other
 
 The plugin will add the following two dependencies to your `implementation` configuration:
@@ -374,5 +397,5 @@ I have a local fix for this and I hope to create a PR for it to the relevant Apa
 
 ## Contributions
 
-I often feel a bit stretched out in terms of maintaining this and my projects.
+I often feel a bit stretched out in terms of maintaining this and my other projects.
 For that reason, I might not respond to issues and PRs very often.

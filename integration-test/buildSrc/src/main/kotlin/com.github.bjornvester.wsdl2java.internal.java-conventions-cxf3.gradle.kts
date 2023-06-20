@@ -13,8 +13,6 @@ dependencies {
 
 java {
     toolchain {
-        // Note that the unit test in the root project modifies the line below
-        // Be careful making changes
         languageVersion.set(JavaLanguageVersion.of(8))
     }
 }

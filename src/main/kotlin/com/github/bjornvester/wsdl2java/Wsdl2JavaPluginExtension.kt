@@ -7,8 +7,8 @@ import org.gradle.api.provider.Property
 import javax.inject.Inject
 
 open class Wsdl2JavaPluginExtension @Inject constructor(objects: ObjectFactory, layout: ProjectLayout) : Wsdl2JavaPluginExtensionGroup {
-    val useJakarta: Property<Boolean> = objects.property(Boolean::class.java).convention(true)
-    val cxfVersion: Property<String> = objects.property(String::class.java).convention(useJakarta.map { if (it) "4.0.2" else "3.5.6" })
+    val useJakarta = objects.property(Boolean::class.java).convention(true)
+    val cxfVersion = objects.property(String::class.java).convention(useJakarta.map { if (it) "4.0.2" else "3.5.6" })
     val addCompilationDependencies: Property<Boolean> = objects.property(Boolean::class.java).convention(true)
 
     override val name = "Defaults"

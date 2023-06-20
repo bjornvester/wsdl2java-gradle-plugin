@@ -15,8 +15,7 @@ import org.gradle.util.GradleVersion
 
 class Wsdl2JavaPlugin : Plugin<Project> {
     companion object {
-        const val MINIMUM_GRADLE_VERSION = "6.7"
-        const val MINIMUM_GRADLE_VERSION_GROUPING = "7.0"
+        const val MINIMUM_GRADLE_VERSION = "7.6"
         const val PLUGIN_ID = "com.github.bjornvester.wsdl2java"
         const val WSDL2JAVA_TASK_NAME = "wsdl2java"
         const val WSDL2JAVA_EXTENSION_NAME = "wsdl2java"
@@ -40,10 +39,10 @@ class Wsdl2JavaPlugin : Plugin<Project> {
             add(project.dependencies.create("org.slf4j:slf4j-simple:1.7.36"))
         }
 
-        project.configurations.named("implementation") {
+        project.configurations.named(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME) {
             // The listProperty thing is a work-around for https://github.com/gradle/gradle/issues/13255
             dependencies.addAllLater(project.objects.listProperty(Dependency::class.java).convention(extension.addCompilationDependencies.map {
-                val deps = listOf<Dependency>().toMutableList();
+                val deps = listOf<Dependency>().toMutableList()
                 if (it) {
                     val wsApiVersion = if (extension.useJakarta.get()) "3.0.1" else "2.3.3"
                     val jwsApiVersion = if (extension.useJakarta.get()) "3.0.0" else "1.1.1"
@@ -61,10 +60,6 @@ class Wsdl2JavaPlugin : Plugin<Project> {
         val defaultTask = addWsdl2JavaTask(WSDL2JAVA_TASK_NAME, project, extension)
 
         extension.groups.all {
-            if (GradleVersion.current() < GradleVersion.version(MINIMUM_GRADLE_VERSION_GROUPING)) {
-                throw UnsupportedOperationException("Plugin $PLUGIN_ID requires at least Gradle $MINIMUM_GRADLE_VERSION_GROUPING when using the 'groups' property, but you are using ${GradleVersion.current().version}")
-            }
-
             defaultTask.configure {
                 enabled = false
             }

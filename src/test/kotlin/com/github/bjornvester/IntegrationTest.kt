@@ -12,52 +12,33 @@ import java.lang.management.ManagementFactory
 import java.util.stream.Stream
 
 open class IntegrationTest {
-    @ParameterizedTest(name = "Test plugin with Java version {0} and Gradle version {1}")
+    @ParameterizedTest(name = "Test plugin with Gradle version {0}")
     @MethodSource("provideVersions")
-    fun thePluginWorks(javaVersion: String, gradleVersion: String, @TempDir tempDir: File) {
-        runGenericBuild(javaVersion, gradleVersion, tempDir)
+    fun thePluginWorks(gradleVersion: String, @TempDir tempDir: File) {
+        runGenericBuild(gradleVersion, tempDir)
     }
 
-    private fun runGenericBuild(javaVersion: String, gradleVersion: String, tempDir: File) {
+    private fun runGenericBuild(gradleVersion: String, tempDir: File) {
         copyIntegrationTestProject(tempDir)
 
         // Remove the "includedBuild" declaration from the settings file
         tempDir.resolve(SETTINGS_FILE).writeText(tempDir.resolve(SETTINGS_FILE).readText().replace("includeBuild(\"..\")", ""))
 
-        if (GradleVersion.version(gradleVersion) < GradleVersion.version("7.0")) {
-            // The grouping functionality is not supported in older versions
-            tempDir.resolve(SETTINGS_FILE)
-                    .writeText(tempDir.resolve(SETTINGS_FILE).readText().replace("\"grouping-test\",", ""))
+        if (GradleVersion.version(gradleVersion) < GradleVersion.version("8.1")) {
+            // The Gradle configuration cache was not stable until version 8.1
+            tempDir.resolve(PROPERTIES_FILE)
+                .writeText(tempDir.resolve(PROPERTIES_FILE).readText().replace("org.gradle.configuration-cache=true", ""))
         }
-
-        if (javaVersion.toInt() < 17) {
-            // CXF 4 projects do not support Java < 17
-            val settingsContent = tempDir.resolve(SETTINGS_FILE).readText().replace("""\s*"cxf4:.*""".toRegex(), "")
-            tempDir.resolve(SETTINGS_FILE).writeText(settingsContent)
-        }
-
-        if (GradleVersion.version(gradleVersion) < GradleVersion.version("7.6")) {
-            // The Gradle toolchain provisioning is not supported in older versions
-            tempDir.resolve(SETTINGS_FILE)
-                    .writeText(tempDir.resolve(SETTINGS_FILE).readText().replace("""id\("org.gradle.toolchains.foojay-resolver-convention"\).*""".toRegex(), ""))
-        }
-
-        // Set the Java version
-        tempDir.resolve(JAVA_CONVENTIONS_FILE)
-                .writeText(
-                        tempDir.resolve(JAVA_CONVENTIONS_FILE).readText()
-                                .replace("JavaLanguageVersion.of(8)", "JavaLanguageVersion.of($javaVersion)")
-                )
 
         GradleRunner
-                .create()
-                .forwardOutput()
-                .withProjectDir(tempDir)
-                .withPluginClasspath()
-                .withArguments("clean", "check", "-i", "-s", "--no-build-cache")
-                .withGradleVersion(gradleVersion)
-                .withDebug(isDebuggerAttached())
-                .build()
+            .create()
+            .forwardOutput()
+            .withProjectDir(tempDir)
+            .withPluginClasspath()
+            .withArguments("clean", "check", "-i", "-s", "--no-build-cache")
+            .withGradleVersion(gradleVersion)
+            .withDebug(isDebuggerAttached())
+            .build()
     }
 
     private fun copyIntegrationTestProject(tempDir: File) {
@@ -78,21 +59,15 @@ open class IntegrationTest {
 
     companion object {
         const val SETTINGS_FILE = "settings.gradle.kts"
-        const val JAVA_CONVENTIONS_FILE = "buildSrc/src/main/kotlin/com.github.bjornvester.wsdl2java.internal.java-conventions.gradle.kts"
+        const val PROPERTIES_FILE = "gradle.properties"
 
         @JvmStatic
         @Suppress("unused")
         fun provideVersions(): Stream<Arguments?>? {
             return Stream.of(
-                    // Test various versions of Gradle, using Java 8
-                    // This only tests CXF 3 projects
-                    Arguments.of("8", "6.7"), // Minimum required version of Gradle
-                    Arguments.of("8", "7.6.1"),
-                    Arguments.of("8", "8.1.1"),
-                    // Test various versions of Java, other than one used above, and using the newest (at this time) version of Gradle
-                    // This tests both CXF 3 and 4 projects
-                    Arguments.of("11", "8.1.1"),
-                    Arguments.of("17", "8.1.1")
+                // Test various versions of Gradle
+                Arguments.of("7.6.1"), // Minimum required version of Gradle
+                Arguments.of("8.1.1")
             )
         }
     }

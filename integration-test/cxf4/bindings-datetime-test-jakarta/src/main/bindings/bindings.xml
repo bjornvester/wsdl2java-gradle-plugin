@@ -1,5 +1,6 @@
 <bindings xmlns="https://jakarta.ee/xml/ns/jaxb" version="3.0"
-          xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc">
+          xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+          extensionBindingPrefixes="xjc">
     <globalBindings>
         <xjc:javaType name="java.time.OffsetDate" xmlType="xs:date"
                       adapter="io.github.threetenjaxb.core.OffsetTimeXmlAdapter"/>

@@ -17,5 +17,3 @@ include(
     "cxf3:generated-annotation-test",
     "cxf3:xjc-plugins-test"
 )
-
-//enableFeaturePreview("STABLE_CONFIGURATION_CACHE")

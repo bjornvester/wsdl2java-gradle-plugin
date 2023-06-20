@@ -20,9 +20,9 @@ import javax.inject.Inject
 
 @CacheableTask
 abstract class Wsdl2JavaTask @Inject constructor(
-        private val workerExecutor: WorkerExecutor,
-        private val fileOperations: FileOperations,
-        objects: ObjectFactory
+    private val workerExecutor: WorkerExecutor,
+    private val fileOperations: FileOperations,
+    objects: ObjectFactory
 ) : DefaultTask() {
     @get:InputDirectory
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -71,6 +71,7 @@ abstract class Wsdl2JavaTask @Inject constructor(
     @get:OutputDirectory
     val sourcesOutputDir: DirectoryProperty = objects.directoryProperty().convention(getWsdl2JavaExtension().generatedSourceDir)
 
+    @Optional
     @get:Nested
     val javaLauncher: Property<JavaLauncher> = objects.property(JavaLauncher::class.java)
 
@@ -87,7 +88,9 @@ abstract class Wsdl2JavaTask @Inject constructor(
         fileOperations.mkdir(sourcesOutputDir)
 
         val workerExecutor = workerExecutor.processIsolation {
-            forkOptions.executable = javaLauncher.get().executablePath.asFile.absolutePath;
+            if (javaLauncher.isPresent) {
+                forkOptions.executable = javaLauncher.get().executablePath.asFile.absolutePath
+            }
 
             /*
             All gradle worker processes have Xerces2 on the classpath.
@@ -98,10 +101,10 @@ abstract class Wsdl2JavaTask @Inject constructor(
             The JDK comes with an internal implementation of a SAXParser, also based on Xerces, but supports the properties to control external file access.
             */
             forkOptions.systemProperties = mapOf(
-                    "javax.xml.parsers.DocumentBuilderFactory" to "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl",
-                    "javax.xml.parsers.SAXParserFactory" to "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl",
-                    "javax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema" to "org.apache.xerces.internal.jaxp.validation.XMLSchemaFactory",
-                    "javax.xml.accessExternalSchema" to "all"
+                "javax.xml.parsers.DocumentBuilderFactory" to "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl",
+                "javax.xml.parsers.SAXParserFactory" to "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl",
+                "javax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema" to "org.apache.xerces.internal.jaxp.validation.XMLSchemaFactory",
+                "javax.xml.accessExternalSchema" to "all"
             )
 
             if (logger.isDebugEnabled) {
@@ -114,8 +117,8 @@ abstract class Wsdl2JavaTask @Inject constructor(
             forkOptions.environment("LANG", System.getenv("LANG") ?: "C.UTF-8")
 
             classpath
-                    .from(wsdl2JavaConfiguration)
-                    .from(xjcPluginsConfiguration)
+                .from(wsdl2JavaConfiguration)
+                .from(xjcPluginsConfiguration)
         }
 
         val defaultArgs = buildDefaultArguments()
@@ -140,37 +143,37 @@ abstract class Wsdl2JavaTask @Inject constructor(
     }
 
     private fun addWsdlToArgs(
-            includePattern: List<String>?,
-            defaultArgs: List<String>,
-            wsdlToArgs: MutableMap<String, List<String>>
+        includePattern: List<String>?,
+        defaultArgs: List<String>,
+        wsdlToArgs: MutableMap<String, List<String>>
     ) {
         wsdlInputDir
-                .asFileTree
-                .matching { if (includePattern != null) include(includePattern) }
-                .forEach { wsdlFile ->
-                    val computedArgs = mutableListOf<String>()
-                    computedArgs.addAll(defaultArgs)
+            .asFileTree
+            .matching { if (includePattern != null) include(includePattern) }
+            .forEach { wsdlFile ->
+                val computedArgs = mutableListOf<String>()
+                computedArgs.addAll(defaultArgs)
 
-                    if (!computedArgs.contains("-wsdlLocation")) {
-                        computedArgs.addAll(
-                                listOf(
-                                        "-wsdlLocation",
-                                        wsdlFile.relativeTo(wsdlInputDir.asFile.get()).invariantSeparatorsPath
-                                )
+                if (!computedArgs.contains("-wsdlLocation")) {
+                    computedArgs.addAll(
+                        listOf(
+                            "-wsdlLocation",
+                            wsdlFile.relativeTo(wsdlInputDir.asFile.get()).invariantSeparatorsPath
                         )
-                    }
-
-                    computedArgs.add(wsdlFile.path)
-                    wsdlToArgs[wsdlFile.path] = computedArgs
+                    )
                 }
+
+                computedArgs.add(wsdlFile.path)
+                wsdlToArgs[wsdlFile.path] = computedArgs
+            }
     }
 
     private fun buildDefaultArguments(): MutableList<String> {
         val defaultArgs = mutableListOf(
-                "-xjc-disableXmlSecurity",
-                "-autoNameResolution",
-                "-d",
-                sourcesOutputDir.get().toString()
+            "-xjc-disableXmlSecurity",
+            "-autoNameResolution",
+            "-d",
+            sourcesOutputDir.get().toString()
         )
 
         if (suppressGeneratedDate.get()) {
@@ -192,10 +195,10 @@ abstract class Wsdl2JavaTask @Inject constructor(
 
         if (bindingFile.isPresent) {
             defaultArgs.addAll(
-                    listOf(
-                            "-b",
-                            bindingFile.get().asFile.absolutePath
-                    )
+                listOf(
+                    "-b",
+                    bindingFile.get().asFile.absolutePath
+                )
             )
         }
 
@@ -214,12 +217,12 @@ abstract class Wsdl2JavaTask @Inject constructor(
 
         if (options.isPresent || includesWithOptions.isPresent) {
             val prohibitedOptions = mapOf(
-                    "-verbose" to "Configured through the 'verbose' property",
-                    "-d" to "Configured through the 'generatedSourceDir' property",
-                    "-p" to "Configured through the 'packageName' property",
-                    "-suppress-generated-date" to "Configured through the 'suppressGeneratedDate' property",
-                    "-mark-generated" to "Configured through the 'markGenerated' property",
-                    "-autoNameResolution" to "Configured automatically and cannot currently be overridden"
+                "-verbose" to "Configured through the 'verbose' property",
+                "-d" to "Configured through the 'generatedSourceDir' property",
+                "-p" to "Configured through the 'packageName' property",
+                "-suppress-generated-date" to "Configured through the 'suppressGeneratedDate' property",
+                "-mark-generated" to "Configured through the 'markGenerated' property",
+                "-autoNameResolution" to "Configured automatically and cannot currently be overridden"
             )
 
             // Note that we allow specifying binding file(s) through the -b parameter, as we otherwise can't configure individual bindings pr. wsdl
