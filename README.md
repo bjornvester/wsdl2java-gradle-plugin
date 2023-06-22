@@ -22,7 +22,7 @@ Apply the plugin ID "com.github.bjornvester.wsdl2java" as specific in the [Gradl
 
 ```kotlin
 plugins {
-    id("com.github.bjornvester.wsdl2java") version "2.0.1"
+    id("com.github.bjornvester.wsdl2java") version "2.0.2"
 }
 ```
 

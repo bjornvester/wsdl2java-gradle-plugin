@@ -87,15 +87,11 @@ class Wsdl2JavaPlugin : Plugin<Project> {
             val currentJavaToolchain = project.extensions.getByType(JavaPluginExtension::class.java).toolchain
             val currentJvmLauncherProvider = toolchainService.launcherFor(currentJavaToolchain)
             javaLauncher.convention(currentJvmLauncherProvider)
-
-            val sourceSets = project.properties["sourceSets"] as SourceSetContainer
-            sourceSets.named(MAIN_SOURCE_SET_NAME) {
-                java.srcDir(sourcesOutputDir)
-            }
         }
 
-        project.tasks.named(JavaPlugin.COMPILE_JAVA_TASK_NAME) {
-            dependsOn(wsdl2JavaTask)
+        val sourceSets = project.properties["sourceSets"] as SourceSetContainer
+        sourceSets.named(MAIN_SOURCE_SET_NAME) {
+            java.srcDir(wsdl2JavaTask)
         }
 
         return wsdl2JavaTask

@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.github.bjornvester"
-version = "2.0.1"
+version = "2.0.2"
 
 repositories {
     mavenCentral()
@@ -53,8 +53,7 @@ gradlePlugin {
             tags.set(listOf("wsdl2java", "cxf", "wsimport"))
             implementationClass = "com.github.bjornvester.wsdl2java.Wsdl2JavaPlugin"
             description = "Changes:\n" +
-                    "  - Fixed a problem in older versions of Gradle when not specifying a Java toolchain.\n" +
-                    "  - Due to compatability issues not found version 2.0.0 of the plugin, the plugin now requires at least Gradle 7.6"
+                    "  - Fixed missing task dependency on wsdl2java from sourcesJar"
         }
     }
 }
