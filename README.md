@@ -47,7 +47,7 @@ Here is a list of all available properties:
 | includes                   | ListProperty\<String> | \["**/*.wsdl"]                                   | Inclusion filers (Ant style) for which WSDLs to include.                                                                                                                                                                                 |
 | includesWithOptions        | Map\<String, List>    | \[not set\]                                      | Inclusion filters like above, but with individual options. See below.                                                                                                                                                                    |
 | generatedSourceDir         | DirectoryProperty     | "$buildDir/generated<br>/sources/wsdl2java/java" | The output directory for the generated Java sources.<br>Note that it will be deleted when running XJC.                                                                                                                                   |
-| bindingFile                | RegularFileProperty   | \[not set\]                                      | A binding file to use in the schema compiler.                                                                                                                                                                                            |
+| bindingFiles               | FileCollection        | \[empty\]                                        | Binding files to use in the schema compiler.                                                                                                                                                                                            |
 | useJakarta                 | Provider\<Boolean>    | true                                             | Set to use the `jakarta` namespace. If false, uses the `javax` namespace. This value also determines the default version of CXF.                                                                                                         |
 | cxfVersion                 | Provider\<String>     | "4.0.2" for jakarta / 3.5.6 for javax            | The version of CXF to use. Use a version >= 4 for `jakarta` and below for `javax`.                                                                                                                                                       |
 | verbose                    | Provider\<Boolean>    | \[not set\]                                      | Enables verbose output from CXF. If not set, it will be be enabled only on the info logging level.                                                                                                                                       |
@@ -168,11 +168,12 @@ Note that the directory will be wiped completely on each run, so don't put other
 
 ### Configure binding files
 
-A binding file can be added like this:
+A binding file can be added like this, multiple binding files are supported:
 
 ```kotlin
 wsdl2java {
-    bindingFile.set(layout.projectDirectory.file("src/main/bindings/binding.xjb"))
+    bindingFile("src/main/bindings/binding.xjb")
+    bindingFile("src/main/bindings/another-binding.xjb")
 }
 ```
 
@@ -202,7 +203,7 @@ dependencies {
 }
 
 wsdl2java {
-    bindingFile.set(layout.projectDirectory.file("src/main/bindings/bindings.xjb"))
+    bindingFile("src/main/bindings/bindings.xjb")
 }
 ```
 

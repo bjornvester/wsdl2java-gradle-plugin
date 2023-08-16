@@ -1,7 +1,7 @@
 package com.github.bjornvester.wsdl2java
 
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
@@ -11,7 +11,7 @@ interface Wsdl2JavaPluginExtensionGroup {
     val wsdlDir: DirectoryProperty
     val includes: ListProperty<String>
     val includesWithOptions: MapProperty<String, List<*>>
-    val bindingFile: RegularFileProperty
+    val bindingFiles: ConfigurableFileCollection
     val generatedSourceDir: DirectoryProperty
     val options: ListProperty<String>
     val verbose: Property<Boolean>
