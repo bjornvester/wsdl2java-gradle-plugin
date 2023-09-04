@@ -389,11 +389,11 @@ the [com.github.bjornvester.xjc](https://plugins.gradle.org/plugin/com.github.bj
 The CXF tool will overwrite generated classes from multiple WSDL files if they have the same qualified name.
 Especially the `ObjectFactory` class might be overwritten, which is very annoying.
 
-### CXF is not deterministic
+### CXF does not generate resources in a deterministic way
 
 When CXF generates an `ObjectFactory` class, the order of the methods are not deterministic, but depend on the absolute path of the input files.
-This may cause misses in the Gradle build cache, ecp, which may propagate to downstream projects, resulting in long build times.
-I have a local fix for this and I hope to create a PR for it to the relevant Apache project.
+This may cause misses in the Gradle build cache, which may propagate to downstream projects, resulting in long build times.
+See https://issues.apache.org/jira/browse/XMLSCHEMA-65 for more information.
 
 ## Contributions
 

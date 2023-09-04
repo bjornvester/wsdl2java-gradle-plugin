@@ -10,6 +10,7 @@ open class Wsdl2JavaPluginExtension @Inject constructor(objects: ObjectFactory, 
     val useJakarta = objects.property(Boolean::class.java).convention(true)
     val cxfVersion = objects.property(String::class.java).convention(useJakarta.map { if (it) "4.0.2" else "3.5.6" })
     val addCompilationDependencies: Property<Boolean> = objects.property(Boolean::class.java).convention(true)
+    val useProcessIsolation: Property<Boolean> = objects.property(Boolean::class.java).convention(true)
 
     override val name = "Defaults"
     override val wsdlDir = objects.directoryProperty().convention(layout.projectDirectory.dir("src/main/resources"))
