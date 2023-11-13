@@ -194,7 +194,11 @@ abstract class Wsdl2JavaTask @Inject constructor(
         }
 
         if (packageName.isPresent && packageName.get().isNotBlank()) {
-            defaultArgs.addAll(listOf("-p", packageName.get()))
+            //interpret packageName as a comma separated list of package name declarations. This won't break
+            //existing configurations that only have one package name
+            packageName.get().split(",").forEach{ p->
+                defaultArgs.addAll(listOf("-p", p))
+            }
         }
 
         // Add the verbose parameter if explicitly configured to true, or if not set but info logging is enabled

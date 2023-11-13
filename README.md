@@ -238,6 +238,15 @@ wsdl2java {
 }
 
 ```
+You can also specify a comma separated list of namespace-specific package names:
+```kotlin
+wsdl2java {
+    packageName.set("http://first.namespace=com.github.bjornvester.wsdl2java.namespace.first,"+
+                    "http://second.namespace=com.github.bjornvester.wsdl2java.namespace.second")
+}
+
+```
+
 
 ### Configure encoding
 
