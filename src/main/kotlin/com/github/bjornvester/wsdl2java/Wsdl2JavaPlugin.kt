@@ -89,7 +89,7 @@ class Wsdl2JavaPlugin : Plugin<Project> {
             javaLauncher.convention(currentJvmLauncherProvider)
         }
 
-        val sourceSets = project.properties["sourceSets"] as SourceSetContainer
+        val sourceSets = project.extensions.getByType(SourceSetContainer::class.java)
         sourceSets.named(MAIN_SOURCE_SET_NAME) {
             java.srcDir(wsdl2JavaTask)
         }
