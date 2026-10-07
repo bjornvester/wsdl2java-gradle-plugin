@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.github.bjornvester"
-version = "2.0.2"
+version = "2.0.3"
 
 repositories {
     mavenCentral()
@@ -36,8 +36,8 @@ tasks.withType<Wrapper> {
 }
 
 dependencies {
-    compileOnly("org.apache.cxf:cxf-tools-wsdlto-core:4.0.2")
-    testImplementation("commons-io:commons-io:2.13.0")
+    compileOnly("org.apache.cxf:cxf-tools-wsdlto-core:4.1.8")
+    testImplementation("commons-io:commons-io:2.14.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.3")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")

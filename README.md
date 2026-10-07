@@ -22,7 +22,7 @@ Apply the plugin ID "com.github.bjornvester.wsdl2java" as specific in the [Gradl
 
 ```kotlin
 plugins {
-    id("com.github.bjornvester.wsdl2java") version "2.0.2"
+    id("com.github.bjornvester.wsdl2java") version "2.0.3"
 }
 ```
 
@@ -49,7 +49,7 @@ Here is a list of all available properties:
 | generatedSourceDir         | DirectoryProperty     | "$buildDir/generated<br>/sources/wsdl2java/java" | The output directory for the generated Java sources.<br>Note that it will be deleted when running XJC.                                                                                                                                   |
 | bindingFile                | RegularFileProperty   | \[not set\]                                      | A binding file to use in the schema compiler.                                                                                                                                                                                            |
 | useJakarta                 | Provider\<Boolean>    | true                                             | Set to use the `jakarta` namespace. If false, uses the `javax` namespace. This value also determines the default version of CXF.                                                                                                         |
-| cxfVersion                 | Provider\<String>     | "4.0.2" for jakarta / 3.5.6 for javax            | The version of CXF to use. Use a version >= 4 for `jakarta` and below for `javax`.                                                                                                                                                       |
+| cxfVersion                 | Provider\<String>     | "4.1.8" for jakarta / 3.5.11 for javax            | The version of CXF to use. Use a version >= 4 for `jakarta` and below for `javax`.                                                                                                                                                       |
 | verbose                    | Provider\<Boolean>    | \[not set\]                                      | Enables verbose output from CXF. If not set, it will be be enabled only on the info logging level.                                                                                                                                       |
 | markGenerated              | Provider\<Boolean>    | "no"                                             | Adds the @Generated annotation to the generated sources. See below for details as there are some gotchas with this.                                                                                                                      |
 | generatedStyle             | Provider\<String>     | "default"                                        | If using the @Generated annotation, select the type can be overridden by this. See below for details.                                                                                                                                    |
@@ -64,7 +64,7 @@ You can specify the version of CXF used for code generation like this:
 
 ```kotlin
 wsdl2java {
-    cxfVersion.set("4.0.2")
+    cxfVersion.set("4.1.8")
 }
 ```
 
