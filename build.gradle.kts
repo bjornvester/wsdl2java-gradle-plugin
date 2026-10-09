@@ -51,12 +51,13 @@ tasks.withType<Wrapper> {
 }
 
 dependencies {
-    compileOnly("org.apache.cxf:cxf-tools-wsdlto-core:4.1.8")
-    testImplementation("commons-io:commons-io:2.14.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.3")
+    compileOnly("org.apache.cxf:cxf-tools-wsdlto-core:4.2.3")
+    testImplementation(platform("org.junit:junit-bom:5.14.4")) // Version 6+ requires Java 17 and we still support Java 8
+    testImplementation("commons-io:commons-io:2.22.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.9.3")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 gradlePlugin {
