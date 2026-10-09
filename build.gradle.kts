@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     `kotlin-dsl`
     id("java-gradle-plugin")
-    id("com.gradle.plugin-publish") version "1.2.0"
+    id("com.gradle.plugin-publish") version "2.2.1"
 }
 
 group = "com.github.bjornvester"
@@ -70,7 +70,8 @@ gradlePlugin {
             tags.set(listOf("wsdl2java", "cxf", "wsimport"))
             implementationClass = "com.github.bjornvester.wsdl2java.Wsdl2JavaPlugin"
             description = "Changes:\n" +
-                    "  - Fixed missing task dependency on wsdl2java from sourcesJar"
+                    "  - Update default dependencies\n" +
+                    "  - Support Gradle project isolation (incubating)"
         }
     }
 }
