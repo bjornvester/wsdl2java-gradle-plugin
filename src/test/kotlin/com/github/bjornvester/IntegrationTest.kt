@@ -67,7 +67,8 @@ open class IntegrationTest {
             return Stream.of(
                 // Test various versions of Gradle
                 Arguments.of("7.6.1"), // Minimum required version of Gradle
-                Arguments.of("8.1.1")
+                Arguments.of("8.14.6"), // Latest in the 8.x series (at the time of writing)
+                Arguments.of("9.8.1") // Latest in the 9.x series (at the time of writing)
             )
         }
     }

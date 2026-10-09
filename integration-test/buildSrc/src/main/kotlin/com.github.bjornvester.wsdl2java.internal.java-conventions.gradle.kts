@@ -15,6 +15,7 @@ dependencies {
     testRuntimeOnly("org.apache.cxf:cxf-rt-transports-http")
     testRuntimeOnly("org.apache.cxf:cxf-rt-transports-http-jetty")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.9.3") // Required explicitly since Gradle 9
     testRuntimeOnly("org.slf4j:slf4j-simple:1.7.36")
 
     // Raise vulnerable transitive versions pulled in by CXF / wiremock to patched releases.

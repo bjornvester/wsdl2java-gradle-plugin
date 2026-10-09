@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     `kotlin-dsl`
     id("java-gradle-plugin")
@@ -13,7 +16,19 @@ repositories {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(8))
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
+// Compile down to Java 8 bytecode so the plugin keeps supporting Java 8,
+// even though Gradle (and thus the test JVM) runs on Java 17.
+tasks.withType<JavaCompile>().configureEach {
+    options.release.set(8)
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_1_8)
     }
 }
 
