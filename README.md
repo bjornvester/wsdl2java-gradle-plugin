@@ -7,7 +7,7 @@ A Gradle plugin for generating Java classes from WSDL files through CXF.
 
 ## Requirements and main features
 
-* The plugin requires Gradle 7.6 or later. (Tested with Gradle 7 and 8.)
+* The plugin requires Gradle 7.6 or later. (Tested with Gradle 7, 8 and 9.)
 * For using the Jakarta namespace (default), the plugin requires Java 17 or greater. For the older javax namespace, you can use Java 8, 11 or 17.
 * It supports the Gradle build cache (enabled by setting `org.gradle.caching=true` in your gradle.properties file).
 * It supports the Gradle configuration cache (enabled by setting `org.gradle.configuration-cache=true` in your gradle.properties file").
@@ -15,6 +15,7 @@ A Gradle plugin for generating Java classes from WSDL files through CXF.
   This is especially useful in a CI context, where you might clone PRs and/or branches for a repository in their own locations.
   Note, however, that there is an issue in an Apache library called `org.apache.ws.xmlschema:xmlschema-core` that might break this - see below for details.
 * It supports parallel execution (enabled with `org.gradle.parallel=true` in your gradle.properties file), though it does not itself run anything in parallel.
+* It supports isolated projects (incubating, enabled with `org.gradle.unsafe.project-relocation=true` in your gradle.properties file).
 
 ## Configuration
 
@@ -49,7 +50,7 @@ Here is a list of all available properties:
 | generatedSourceDir         | DirectoryProperty     | "$buildDir/generated<br>/sources/wsdl2java/java" | The output directory for the generated Java sources.<br>Note that it will be deleted when running XJC.                                                                                                                                   |
 | bindingFile                | RegularFileProperty   | \[not set\]                                      | A binding file to use in the schema compiler.                                                                                                                                                                                            |
 | useJakarta                 | Provider\<Boolean>    | true                                             | Set to use the `jakarta` namespace. If false, uses the `javax` namespace. This value also determines the default version of CXF.                                                                                                         |
-| cxfVersion                 | Provider\<String>     | "4.1.8" for jakarta / 3.5.11 for javax            | The version of CXF to use. Use a version >= 4 for `jakarta` and below for `javax`.                                                                                                                                                       |
+| cxfVersion                 | Provider\<String>     | "4.1.8" for jakarta / 3.5.11 for javax           | The version of CXF to use. Use a version >= 4 for `jakarta` and below for `javax`.                                                                                                                                                       |
 | verbose                    | Provider\<Boolean>    | \[not set\]                                      | Enables verbose output from CXF. If not set, it will be be enabled only on the info logging level.                                                                                                                                       |
 | markGenerated              | Provider\<Boolean>    | "no"                                             | Adds the @Generated annotation to the generated sources. See below for details as there are some gotchas with this.                                                                                                                      |
 | generatedStyle             | Provider\<String>     | "default"                                        | If using the @Generated annotation, select the type can be overridden by this. See below for details.                                                                                                                                    |
@@ -248,7 +249,7 @@ file. E.g.:
 org.gradle.jvmargs=-Dfile.encoding=UTF-8
 ```
 
-If you are on a POSIX operating system (e.g. Linux), you may in addition to this need to set your operating system
+If you are on a POSIX operating system (e.g., Linux), you may, in addition to this, need to set your operating system
 locale to one that supports your encoding.
 Otherwise, Java (and therefore also Gradle and CXF) may not be able to create files with names outside of what your
 default locale supports.
@@ -306,7 +307,7 @@ wsdl2java {
 }
 ```
 
-While very useful in theory, there are some gotchas with this annotation.
+While useful in theory, there are some gotchas with this annotation.
 One is that it is a source code annotation and thus won't work with tools that work with byte code (like JaCoCo).
 Another is that here are actually three `@Generated` annotations.
 
@@ -362,7 +363,7 @@ wsdl2java {
 }
 ```
 
-In order to avoid generating resources with the same name but different content (for instance like the generated `ObjectFactory` class), you should make sure each group use its own package name.
+To avoid generating resources with the same name but different content (for instance like the generated `ObjectFactory` class), you should make sure each group uses its own package name.
 
 ## Other
 
@@ -391,7 +392,7 @@ Especially the `ObjectFactory` class might be overwritten, which is very annoyin
 
 ### CXF does not generate resources in a deterministic way
 
-When CXF generates an `ObjectFactory` class, the order of the methods are not deterministic, but depend on the absolute path of the input files.
+When CXF generates an `ObjectFactory` class, the order of the methods is not deterministic but depends on the absolute path of the input files.
 This may cause misses in the Gradle build cache, which may propagate to downstream projects, resulting in long build times.
 See https://issues.apache.org/jira/browse/XMLSCHEMA-65 for more information.
 
