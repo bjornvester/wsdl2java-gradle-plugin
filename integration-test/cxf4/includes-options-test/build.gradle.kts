@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    testImplementation("commons-io:commons-io:2.8.0")
+    testImplementation("commons-io:commons-io:2.14.0")
 }
 
 wsdl2java {

@@ -8,7 +8,7 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("org.apache.cxf:cxf-bom:3.5.6"))
+    implementation(platform("org.apache.cxf:cxf-bom:3.5.11"))
 }
 
 java {
