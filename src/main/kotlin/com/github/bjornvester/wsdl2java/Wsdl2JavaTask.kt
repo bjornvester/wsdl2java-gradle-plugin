@@ -109,7 +109,7 @@ abstract class Wsdl2JavaTask @Inject constructor(
 
         if (includesWithOptions.isPresent && includesWithOptions.get().isNotEmpty()) {
             includesWithOptions.get().forEach { (includePattern, includeOptions) ->
-                addWsdlToArgs(listOf(includePattern), defaultArgs + includeOptions as List<String>, wsdlToArgs)
+                addWsdlToArgs(listOf(includePattern), defaultArgs + includeOptions.map { it.toString() }, wsdlToArgs)
             }
         } else {
             addWsdlToArgs(includes.get(), defaultArgs, wsdlToArgs)
