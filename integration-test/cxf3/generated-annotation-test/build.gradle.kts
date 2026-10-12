@@ -5,7 +5,7 @@ plugins {
 
 dependencies {
     implementation("javax.annotation:javax.annotation-api:1.3.2") // For the @Generated annotation from JDK8 but running in JDK9+
-    testImplementation("commons-io:commons-io:2.14.0")
+    testImplementation("commons-io:commons-io:2.22.0")
 }
 
 wsdl2java {
