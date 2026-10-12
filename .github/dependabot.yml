@@ -1,0 +1,32 @@
+version: 2
+updates:
+  # Root plugin build
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    groups:
+      junit:
+        patterns: ["org.junit*"]
+    ignore:
+      # CXF is the Java 8 / javax + Java 17 / jakarta compatibility matrix.
+      # Bump it manually; the integration test (./gradlew check) gates the change.
+      - dependency-name: "org.apache.cxf:cxf-tools-wsdlto-core"
+
+  # Integration test build (nested, independent Gradle build)
+  - package-ecosystem: "gradle"
+    directory: "/integration-test"
+    schedule:
+      interval: "monthly"
+    groups:
+      junit:
+        patterns: ["org.junit*"]
+    ignore:
+      # Same reason as above: the cxf-bom pins the CXF major per subproject.
+      - dependency-name: "org.apache.cxf:cxf-bom"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"

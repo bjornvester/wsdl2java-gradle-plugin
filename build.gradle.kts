@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     `kotlin-dsl`
     id("java-gradle-plugin")
-    id("com.gradle.plugin-publish") version "2.2.1"
+    alias(libs.plugins.plugin.publish)
 }
 
 group = "com.github.bjornvester"
@@ -51,13 +51,13 @@ tasks.withType<Wrapper> {
 }
 
 dependencies {
-    compileOnly("org.apache.cxf:cxf-tools-wsdlto-core:4.2.3")
-    testImplementation(platform("org.junit:junit-bom:5.14.4")) // Version 6+ requires Java 17 and we still support Java 8
-    testImplementation("commons-io:commons-io:2.22.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-api")
-    testImplementation("org.junit.jupiter:junit-jupiter-params")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    compileOnly(libs.cxf.tools.wsdlto.core)
+    testImplementation(platform(libs.junit.bom)) // Version 6+ requires Java 17 and we still support Java 8
+    testImplementation(libs.junit.jupiter.api)
+    testImplementation(libs.junit.jupiter.params)
+    testImplementation(libs.commons.io)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 gradlePlugin {

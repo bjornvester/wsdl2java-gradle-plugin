@@ -1,0 +1,17 @@
+[versions]
+cxf = "4.2.3"
+junit = "5.14.4"
+commons-io = "2.22.0"
+plugin-publish = "2.2.1"
+
+[libraries]
+cxf-tools-wsdlto-core = { group = "org.apache.cxf", name = "cxf-tools-wsdlto-core", version.ref = "cxf" }
+junit-bom = { group = "org.junit", name = "junit-bom", version.ref = "junit" }
+junit-jupiter-api = { group = "org.junit.jupiter", name = "junit-jupiter-api" }
+junit-jupiter-params = { group = "org.junit.jupiter", name = "junit-jupiter-params" }
+junit-jupiter-engine = { group = "org.junit.jupiter", name = "junit-jupiter-engine" }
+junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher" }
+commons-io = { group = "commons-io", name = "commons-io", version.ref = "commons-io" }
+
+[plugins]
+plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "plugin-publish" }
