@@ -65,9 +65,22 @@ You can specify the version of CXF used for code generation like this:
 
 ```kotlin
 wsdl2java {
-    cxfVersion.set("4.1.8")
+    cxfVersion.set("3.6.12")
 }
 ```
+
+Note that:
+- CXF version 4.2.x: Jakarta EE 11 (jakarta namespace). JDK 17 baseline.
+- CXF version 4.1.x: Jakarta EE 10 (jakarta namespace). JDK 17 baseline.
+- CXF version 4.0.x: Jakarta EE 9.1 (jakarta namespace). JDK 11 baseline.
+- CXF version 3.6.x: Java EE 8 (javax namespace). JDK 11 baseline.
+- CXF version 3.5.x: Java EE 8 (javax namespace). JDK 8 baseline.
+
+If you use Spring Boot, you should match the alignment to Jakarta EE:
+- Spring Boot version 4.0-4.2: Jakarta EE 11
+- Spring Boot version 3.2-3.5  Jakarta EE 9/10
+- Spring Boot version 3.0-3.1: Jakarta EE 9 (EE 10 supported)
+- Spring Boot version 2.0-2.7: Java EE 7/8
 
 ### Configure included WSDL files
 
