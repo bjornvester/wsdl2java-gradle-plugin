@@ -1,4 +1,4 @@
-[![Gradle Plugin Release](https://img.shields.io/badge/Gradle%20plugin-1.6.0-blue.svg?logo=data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5MCA2Ni4wNiI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiNmZmY7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5ncmFkbGUtZWxlcGhhbnQtaWNvbi13aGl0ZS1wcmltYXJ5PC90aXRsZT48cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik04NS4xMSw0LjE4YTE0LjI3LDE0LjI3LDAsMCwwLTE5LjgzLS4zNCwxLjM4LDEuMzgsMCwwLDAsMCwyTDY3LDcuNmExLjM2LDEuMzYsMCwwLDAsMS43OC4xMkE4LjE4LDguMTgsMCwwLDEsNzkuNSwyMC4wNkM2OC4xNywzMS4zOCw1My4wNS0uMzYsMTguNzMsMTZhNC42NSw0LjY1LDAsMCwwLTIsNi41NGw1Ljg5LDEwLjE3YTQuNjQsNC42NCwwLDAsMCw2LjMsMS43M2wuMTQtLjA4LS4xMS4wOEwzMS41MywzM2E2MC4yOSw2MC4yOSwwLDAsMCw4LjIyLTYuMTMsMS40NCwxLjQ0LDAsMCwxLDEuODctLjA2aDBhMS4zNCwxLjM0LDAsMCwxLC4wNiwyQTYxLjYxLDYxLjYxLDAsMCwxLDMzLDM1LjM0bC0uMDksMC0yLjYxLDEuNDZhNy4zNCw3LjM0LDAsMCwxLTMuNjEuOTQsNy40NSw3LjQ1LDAsMCwxLTYuNDctMy43MWwtNS41Ny05LjYxQzQsMzItMi41NCw0Ni41NiwxLDY1YTEuMzYsMS4zNiwwLDAsMCwxLjMzLDEuMTFIOC42MUExLjM2LDEuMzYsMCwwLDAsMTAsNjQuODdhOS4yOSw5LjI5LDAsMCwxLDE4LjQyLDAsMS4zNSwxLjM1LDAsMCwwLDEuMzQsMS4xOUgzNS45YTEuMzYsMS4zNiwwLDAsMCwxLjM0LTEuMTksOS4yOSw5LjI5LDAsMCwxLDE4LjQyLDBBMS4zNiwxLjM2LDAsMCwwLDU3LDY2LjA2SDYzLjFhMS4zNiwxLjM2LDAsMCwwLDEuMzYtMS4zNGMuMTQtOC42LDIuNDYtMTguNDgsOS4wNy0yMy40M0M5Ni40MywyNC4xNiw5MC40MSw5LjQ4LDg1LjExLDQuMThaTTYxLjc2LDMwLjA1bC00LjM3LTIuMTloMGEyLjc0LDIuNzQsMCwxLDEsNC4zNywyLjJaIi8+PC9zdmc+)](https://plugins.gradle.org/plugin/com.github.bjornvester.xjc)
+[![Gradle Plugin Release](https://img.shields.io/badge/Gradle%20plugin-2.0.3-blue.svg?logo=data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5MCA2Ni4wNiI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiNmZmY7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5ncmFkbGUtZWxlcGhhbnQtaWNvbi13aGl0ZS1wcmltYXJ5PC90aXRsZT48cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik04NS4xMSw0LjE4YTE0LjI3LDE0LjI3LDAsMCwwLTE5LjgzLS4zNCwxLjM4LDEuMzgsMCwwLDAsMCwyTDY3LDcuNmExLjM2LDEuMzYsMCwwLDAsMS43OC4xMkE4LjE4LDguMTgsMCwwLDEsNzkuNSwyMC4wNkM2OC4xNywzMS4zOCw1My4wNS0uMzYsMTguNzMsMTZhNC42NSw0LjY1LDAsMCwwLTIsNi41NGw1Ljg5LDEwLjE3YTQuNjQsNC42NCwwLDAsMCw2LjMsMS43M2wuMTQtLjA4LS4xMS4wOEwzMS41MywzM2E2MC4yOSw2MC4yOSwwLDAsMCw4LjIyLTYuMTMsMS40NCwxLjQ0LDAsMCwxLDEuODctLjA2aDBhMS4zNCwxLjM0LDAsMCwxLC4wNiwyQTYxLjYxLDYxLjYxLDAsMCwxLDMzLDM1LjM0bC0uMDksMC0yLjYxLDEuNDZhNy4zNCw3LjM0LDAsMCwxLTMuNjEuOTQsNy40NSw3LjQ1LDAsMCwxLTYuNDctMy43MWwtNS41Ny05LjYxQzQsMzItMi41NCw0Ni41NiwxLDY1YTEuMzYsMS4zNiwwLDAsMCwxLjMzLDEuMTFIOC42MUExLjM2LDEuMzYsMCwwLDAsMTAsNjQuODdhOS4yOSw5LjI5LDAsMCwxLDE4LjQyLDAsMS4zNSwxLjM1LDAsMCwwLDEuMzQsMS4xOUgzNS45YTEuMzYsMS4zNiwwLDAsMCwxLjM0LTEuMTksOS4yOSw5LjI5LDAsMCwxLDE4LjQyLDBBMS4zNiwxLjM2LDAsMCwwLDU3LDY2LjA2SDYzLjFhMS4zNiwxLjM2LDAsMCwwLDEuMzYtMS4zNGMuMTQtOC42LDIuNDYtMTguNDgsOS4wNy0yMy40M0M5Ni40MywyNC4xNiw5MC40MSw5LjQ4LDg1LjExLDQuMThaTTYxLjc2LDMwLjA1bC00LjM3LTIuMTloMGEyLjc0LDIuNzQsMCwxLDEsNC4zNywyLjJaIi8+PC9zdmc+)](https://plugins.gradle.org/plugin/com.github.bjornvester.wsdl2java)
 [![GitHub Actions status](https://github.com/bjornvester/wsdl2java-gradle-plugin/workflows/CI/badge.svg)](https://github.com/bjornvester/wsdl2java-gradle-plugin/actions)
 
 # wsdl2java-gradle-plugin
@@ -10,16 +10,16 @@ A Gradle plugin for generating Java classes from WSDL files through CXF.
 * The plugin requires Gradle 7.6 or later. (Tested with Gradle 7, 8 and 9.)
 * For using the Jakarta namespace (default), the plugin requires Java 17 or greater. For the older javax namespace, you can use Java 8, 11 or 17.
 * It supports the Gradle build cache (enabled by setting `org.gradle.caching=true` in your gradle.properties file).
-* It supports the Gradle configuration cache (enabled by setting `org.gradle.configuration-cache=true` in your gradle.properties file").
+* It supports the Gradle configuration cache (enabled by setting `org.gradle.configuration-cache=true` in your gradle.properties file).
 * It supports project relocation for the build cache (e.g. you move your project to a new path, or make a new copy/clone of it).
   This is especially useful in a CI context, where you might clone PRs and/or branches for a repository in their own locations.
-  Note, however, that there is an issue in an Apache library called `org.apache.ws.xmlschema:xmlschema-core` that might break this - see below for details.
+  Note, however, that there is an issue in an Apache library called `org.apache.ws.xmlschema:xmlschema-core` that might break this on older CXF versions - see below for details.
 * It supports parallel execution (enabled with `org.gradle.parallel=true` in your gradle.properties file), though it does not itself run anything in parallel.
-* It supports isolated projects (incubating, enabled with `org.gradle.unsafe.project-relocation=true` in your gradle.properties file).
+* It supports isolated projects (enabled with `org.gradle.unsafe.isolated-projects=true` on Gradle 8.8, or `org.gradle.isolated-projects=true` on Gradle 9.7+, in your gradle.properties file).
 
 ## Configuration
 
-Apply the plugin ID "com.github.bjornvester.wsdl2java" as specific in the [Gradle Plugin portal page](https://plugins.gradle.org/plugin/com.github.bjornvester.wsdl2java), e.g. like this:
+Apply the plugin ID "com.github.bjornvester.wsdl2java" as specified in the [Gradle Plugin portal page](https://plugins.gradle.org/plugin/com.github.bjornvester.wsdl2java), e.g. like this:
 
 ```kotlin
 plugins {
@@ -27,10 +27,10 @@ plugins {
 }
 ```
 
-Put your WSDL and referenced XSD files somewhere in your src/main/resource directory.
+Put your WSDL and referenced XSD files somewhere in your src/main/resources directory.
 By default, the plugin will create Java classes for all the WSDL files in the resource directory.
 
-The generated code will by default end up in the directory build/generated/sources/wsdl2java folder.
+The generated code will by default end up in the directory build/generated/sources/wsdl2java/java.
 
 You can configure the plugin using the "wsdl2java" extension like this:
 
@@ -42,22 +42,23 @@ wsdl2java {
 
 Here is a list of all available properties:
 
-| Property                   | Type                  | Default                                          | Description                                                                                                                                                                                                                              |
-|----------------------------|-----------------------|--------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| wsdlDir                    | DirectoryProperty     | "$projectDir/src<br>/main/resources"             | The directory holding the WSDL and referenced XSD files to compile.                                                                                                                                                                      |
-| includes                   | ListProperty\<String> | \["**/*.wsdl"]                                   | Inclusion filers (Ant style) for which WSDLs to include.                                                                                                                                                                                 |
-| includesWithOptions        | Map\<String, List>    | \[not set\]                                      | Inclusion filters like above, but with individual options. See below.                                                                                                                                                                    |
-| generatedSourceDir         | DirectoryProperty     | "$buildDir/generated<br>/sources/wsdl2java/java" | The output directory for the generated Java sources.<br>Note that it will be deleted when running XJC.                                                                                                                                   |
-| bindingFile                | RegularFileProperty   | \[not set\]                                      | A binding file to use in the schema compiler.                                                                                                                                                                                            |
-| useJakarta                 | Provider\<Boolean>    | true                                             | Set to use the `jakarta` namespace. If false, uses the `javax` namespace. This value also determines the default version of CXF.                                                                                                         |
-| cxfVersion                 | Provider\<String>     | "4.2.3" for jakarta / 3.5.11 for javax           | The version of CXF to use. Use a version >= 4 for `jakarta` and below for `javax`. Note that the javax default is the last Java 8 compatible release (CXF 3.6+ requires Java 11).                                                        |
-| verbose                    | Provider\<Boolean>    | \[not set\]                                      | Enables verbose output from CXF. If not set, it will be be enabled only on the info logging level.                                                                                                                                       |
-| markGenerated              | Provider\<Boolean>    | "no"                                             | Adds the @Generated annotation to the generated sources. See below for details as there are some gotchas with this.                                                                                                                      |
-| generatedStyle             | Provider\<String>     | "default"                                        | If using the @Generated annotation, select the type can be overridden by this. See below for details.                                                                                                                                    |
-| suppressGeneratedDate      | Provider\<Boolean>    | true                                             | Suppresses generating dates in CXF. Default is true to support reproducible builds and to work with the build cache.                                                                                                                     |
-| packageName                | Provider\<String>     | \[not set\]                                      | Sets the package name for the generated sources                                                                                                                                                                                          |
-| options                    | ListProperty\<String> | \[empty\]                                        | Additional options to pass to the tool. See [here](https://cxf.apache.org/docs/wsdl-to-java.html) for details.                                                                                                                           |
-| addCompilationDependencies | Provider\<Boolean>    | true                                             | Adds dependencies to the `implementation` configuration for compiling the generated sources. These includes `jakarta.xml.ws:jakarta.xml.ws-api`, `jakarta.jws:jakarta.jws-api` and possibly `jakarta.annotation:jakarta.annotation-api`. |
+| Property                   | Type                  | Default                                          | Description                                                                                                                                                                                                                             |
+|----------------------------|-----------------------|--------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| wsdlDir                    | DirectoryProperty     | "$projectDir/src<br>/main/resources"             | The directory holding the WSDL and referenced XSD files to compile.                                                                                                                                                                     |
+| includes                   | ListProperty\<String> | \["**/*.wsdl"]                                   | Inclusion filters (Ant style) for which WSDLs to include. The patterns are relative to `wsdlDir`.                                                                                                                                       |
+| includesWithOptions        | Map\<String, List>    | \[not set\]                                      | Inclusion filters like above, but with individual options. See below.                                                                                                                                                                   |
+| generatedSourceDir         | DirectoryProperty     | "$buildDir/generated<br>/sources/wsdl2java/java" | The output directory for the generated Java sources.<br>Note that it will be deleted when running XJC.                                                                                                                                  |
+| bindingFile                | RegularFileProperty   | \[not set\]                                      | A binding file to use in the schema compiler.                                                                                                                                                                                           |
+| useJakarta                 | Provider\<Boolean>    | true                                             | Set to use the `jakarta` namespace. If false, uses the `javax` namespace. This value also determines the default version of CXF.                                                                                                        |
+| cxfVersion                 | Provider\<String>     | "4.2.3" for jakarta / 3.5.11 for javax           | The version of CXF to use. Use a version >= 4 for `jakarta` and below for `javax`. Note that the javax default is the last Java 8 compatible release (CXF 3.6+ requires Java 11).                                                       |
+| verbose                    | Provider\<Boolean>    | \[not set\]                                      | Enables verbose output from CXF. If not set, it will be enabled only on the info logging level.                                                                                                                                         |
+| markGenerated              | Provider\<Boolean>    | false                                            | Adds the @Generated annotation to the generated sources. See below for details as there are some gotchas with this.                                                                                                                     |
+| generatedStyle             | Provider\<String>     | "default"                                        | If using the @Generated annotation, selects which of the three @Generated annotations to use. See below for details.                                                                                                                    |
+| suppressGeneratedDate      | Provider\<Boolean>    | true                                             | Suppresses generating dates in CXF. Default is true to support reproducible builds and to work with the build cache.                                                                                                                    |
+| packageName                | Provider\<String>     | \[not set\]                                      | Sets the package name for the generated sources                                                                                                                                                                                         |
+| options                    | ListProperty\<String> | \[empty\]                                        | Additional options to pass to the tool. See [here](https://cxf.apache.org/docs/wsdl-to-java.html) for details.                                                                                                                          |
+| addCompilationDependencies | Provider\<Boolean>    | true                                             | Adds dependencies to the `implementation` configuration for compiling the generated sources. These include `jakarta.xml.ws:jakarta.xml.ws-api`, `jakarta.jws:jakarta.jws-api` and possibly `jakarta.annotation:jakarta.annotation-api`. |
+| useProcessIsolation        | Provider\<Boolean>    | true                                             | Runs the code generation in a separate process. Set to false to use classloader isolation instead, which allows attaching a debugger to the worker.                                                                                     |
 
 ### Configure the CXF version
 
@@ -78,9 +79,9 @@ Note that:
 
 If you use Spring Boot, you should match the alignment to Jakarta EE:
 - Spring Boot version 4.0-4.2: Jakarta EE 11
-- Spring Boot version 3.2-3.5  Jakarta EE 9/10
-- Spring Boot version 3.0-3.1: Jakarta EE 9 (EE 10 supported)
-- Spring Boot version 2.0-2.7: Java EE 7/8
+- Spring Boot version 3.2-3.5: Jakarta EE 10
+- Spring Boot version 3.0-3.1: Jakarta EE 9.1
+- Spring Boot version 2.0-2.7: Java EE 8
 
 If you are using CXF in your project as well, you can align the version by:
 
@@ -103,17 +104,18 @@ If you change `wsdlDir` in a way where this no longer makes sense, you need to s
 If you have multiple WSDL files, see the section on additional options.
 
 If you have multiple WSDL files and want to only run the tool on some of them, you can use the `includes` property.
+The patterns are Ant style and relative to the `wsdlDir` directory.
 Example:
 
 ```kotlin
 // Only if different from the default 'src/main/resources'
-wsdlDir.set(layout.projectDirectory.dir("src/main/wsdl"))
+wsdlDir.set(layout.projectDirectory.dir("src/main/wsdls"))
 
 // For Kotlin DSL
 includes.set(
     listOf(
-        "src/main/wsdls/MyFirstService.wsdl",
-        "src/main/wsdls/MySecondService.wsdl"
+        "MyFirstService.wsdl",
+        "MySecondService.wsdl"
     )
 )
 ```
@@ -121,8 +123,8 @@ includes.set(
 ```groovy
 // For Groovy DSL
 includes = [
-        "src/main/wsdls/MyFirstService.wsdl",
-        "src/main/wsdls/MySecondService.wsdl"
+        "MyFirstService.wsdl",
+        "MySecondService.wsdl"
 ]
 ```
 
@@ -133,17 +135,17 @@ through the `options` property:
 
 ```kotlin
 // For Kotlin DSL
-includes.set(
+options.set(
     listOf(
-        "xjc-no-header",
-        "xjc-npa"
+        "-xjc-no-header",
+        "-xjc-npa"
     )
 )
 
 // For Groovy DSL
-includes = [
-    "xjc-no-header",
-    "xjc-npa"
+options = [
+    "-xjc-no-header",
+    "-xjc-npa"
 ]
 ```
 
@@ -152,7 +154,7 @@ See [here](https://cxf.apache.org/docs/wsdl-to-java.html) for the available opti
 #### Configure additional options for individual WSDL files
 
 It is possible to pass options for individual WSDL files.
-This is important especially if you need to explicitly configure the `wsdlLocation` option, as it doesn't make to have
+This is important especially if you need to explicitly configure the `wsdlLocation` option, as it doesn't make sense to have
 the same location in all files.
 (But note that if you leave it out, the plugin will guess it based on the file location.)
 
@@ -239,13 +241,13 @@ wsdl2java {
     <xjc:javaType name="java.time.LocalDateTime" xmlType="xs:dateTime" adapter="io.github.threetenjaxb.core.LocalDateTimeXmlAdapter"/>
     <xjc:javaType name="java.time.YearMonth" xmlType="xs:gYearMonth" adapter="io.github.threetenjaxb.core.YearMonthXmlAdapter"/>
     <xjc:javaType name="java.time.Duration" xmlType="xs:duration" adapter="io.github.threetenjaxb.core.DurationXmlAdapter"/>
-    <xjc:javaType name="java.time.OffsetDate" xmlType="xs:date" adapter="io.github.threetenjaxb.core.OffsetTimeXmlAdapter"/>
+    <xjc:javaType name="java.time.OffsetTime" xmlType="xs:time" adapter="io.github.threetenjaxb.core.OffsetTimeXmlAdapter"/>
     <xjc:javaType name="java.time.OffsetDateTime" xmlType="xs:dateTime" adapter="io.github.threetenjaxb.core.OffsetDateTimeXmlAdapter"/>
   </globalBindings>
 </bindings>
 ```
 
-In the above, for `javax`, use version 1.2.0 and the binding attributes to `xmlns="http://java.sun.com/xml/ns/jaxb" version="2.1"`.
+In the above, for `javax`, use version 1.2 and the binding attributes to `xmlns="http://java.sun.com/xml/ns/jaxb" version="2.1"`.
 
 Note that at the moment, it is not possible to specify more than one binding file in the extension. If you require this,
 use the `-b` option.
@@ -283,7 +285,7 @@ export LANG=C.UTF-8
 
 ### Using javax instead of the jakarta namespace
 
-To use the older javax namespace in the generated files, set the `useJakarta` property to `false.
+To use the older javax namespace in the generated files, set the `useJakarta` property to `false`.
 
 ```kotlin
 wsdl2java {
@@ -297,14 +299,17 @@ To use third party plugins for the underlying XJC tool, supply the relevant depe
 configuration.
 Then set the plugin options through the `options` property.
 
-For example, to use the "Equals" and "Hashcode" plugin from
-the [JAXB2 Basics](https://github.com/highsource/jaxb2-basics) project, configure the following:
+For example, to use the "Equals" and "Hashcode" plugins from the
+[JAXB Tools](https://github.com/highsource/jaxb-tools) project, configure the following.
+The project supports both the `javax` and `jakarta` namespaces - you just need to select the version that matches
+your JAXB version (and thus your CXF version):
+
+For the `jakarta` namespace (CXF 4 and later, JAXB 3.0+), use the `jaxb-plugins` artifacts:
 
 ```kotlin
 dependencies {
-    // For CXF 3 and javax only (does not work with CXF 4 and jakarta):
-    implementation("org.jvnet.jaxb2_commons:jaxb2-basics-runtime:0.13.1")
-    xjcPlugins("org.jvnet.jaxb2_commons:jaxb2-basics:0.13.1")
+    implementation("org.jvnet.jaxb:jaxb-plugins-runtime:4.0.9")
+    xjcPlugins("org.jvnet.jaxb:jaxb-plugins:4.0.9")
 }
 
 wsdl2java {
@@ -312,8 +317,18 @@ wsdl2java {
 }
 ```
 
-Note that the example above is for CXF 3 and the older `javax` namespace.
-There is a fork [here](https://github.com/patrodyne/hisrc-basicjaxb) that you may try for CXF 4 and the `jakarta` namespace.
+For the older `javax` namespace (CXF 3, JAXB 2.3), use the `jaxb2-basics` artifacts:
+
+```kotlin
+dependencies {
+    implementation("org.jvnet.jaxb:jaxb2-basics-runtime:2.0.15")
+    xjcPlugins("org.jvnet.jaxb:jaxb2-basics:2.0.15")
+}
+
+wsdl2java {
+    options.addAll("-xjc-Xequals", "-xjc-XhashCode")
+}
+```
 
 ### Enabling the use of the @Generated annotation
 
@@ -330,13 +345,13 @@ wsdl2java {
 
 While useful in theory, there are some gotchas with this annotation.
 One is that it is a source code annotation and thus won't work with tools that work with byte code (like JaCoCo).
-Another is that here are actually three `@Generated` annotations.
+Another is that there are actually three `@Generated` annotations.
 
-* The first is `javax.annotation.Generated` and is available in the JDK up til and including Java 8. It is also included in the `javax.annotation:javax.annotation-api` dependency.
+* The first is `javax.annotation.Generated` and is available in the JDK up to and including Java 8. It is also included in the `javax.annotation:javax.annotation-api` dependency.
 * The second is `javax.annotation.processing.Generated` and is available in the JDK from Java 9.
-* the third is `jakarta.annotation.Generated` and is included in the `jakarta.annotation:jakarta.annotation-api` dependency.
+* The third is `jakarta.annotation.Generated` and is included in the `jakarta.annotation:jakarta.annotation-api` dependency.
 
-XJC 3 uses the first, and XJC 4+ uses the third.
+CXF 3 (javax) uses the first by default, and CXF 4 (jakarta) uses the third by default.
 
 Because your tools may only support a particular version of the `@Generated` annotation, you can select which one through the `generatedStyle` configuration.
 Supported values are: `default`, `jdk8`, `jdk9` and `jakarta`.
@@ -349,7 +364,8 @@ dependencies {
 }
 
 wsdl2java {
-    markGenerated.set("jdk8")
+    markGenerated.set(true)
+    generatedStyle.set("jdk8")
 }
 ```
 
@@ -364,7 +380,7 @@ wsdl2java {
 ```
 
 ## Groups
-If the `includesWithOptions` is not enough, you can also make groups of WSDL files, each having their own extension.
+If the `includesWithOptions` is not enough, you can also make groups of WSDL files, each with its own configuration.
 This is done like this:
 
 ```kotlin
@@ -388,12 +404,15 @@ To avoid generating resources with the same name but different content (for inst
 
 ## Other
 
-The plugin will add the following two dependencies to your `implementation` configuration:
+The plugin will add the following dependencies to your `implementation` configuration (for the default `jakarta` namespace):
 
 ```
-jakarta.xml.ws:jakarta.xml.ws-api:2.3.3
-jakarta.jws:jakarta.jws-api:1.1.1
+jakarta.xml.ws:jakarta.xml.ws-api:3.0.1
+jakarta.jws:jakarta.jws-api:3.0.0
 ```
+
+For the `javax` namespace, the versions are `jakarta.xml.ws:jakarta.xml.ws-api:2.3.3` and `jakarta.jws:jakarta.jws-api:1.1.1`.
+If you enable the `@Generated` annotation (with a `generatedStyle` other than `jdk9`), a third dependency, `jakarta.annotation:jakarta.annotation-api`, is also added.
 
 These are required to compile the generated code.
 However, depending on your runtime platform, you may want to exclude them and instead either put them in the `compileOnly` configuration, or use whatever libraries that are
@@ -415,6 +434,8 @@ Especially the `ObjectFactory` class might be overwritten, which is very annoyin
 
 When CXF generates an `ObjectFactory` class, the order of the methods is not deterministic but depends on the absolute path of the input files.
 This may cause misses in the Gradle build cache, which may propagate to downstream projects, resulting in long build times.
+This was fixed in `org.apache.ws.xmlschema:xmlschema-core` 2.3.1, which is bundled by the default CXF versions (3.5.11 and 4.2.3).
+If you use an older CXF version, you may still be affected.
 See https://issues.apache.org/jira/browse/XMLSCHEMA-65 for more information.
 
 ## Contributions
