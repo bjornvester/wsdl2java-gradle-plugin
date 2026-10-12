@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    implementation("io.github.threeten-jaxb:threeten-jaxb-core:1.2")
+    implementation("io.github.threeten-jaxb:threeten-jaxb-core:2.2.0")
 }
 
 wsdl2java {
