@@ -31,6 +31,11 @@ class Wsdl2JavaPlugin : Plugin<Project> {
         val wsdl2JavaConfiguration = createResolvableConfiguration(project, WSDL2JAVA_CONFIGURATION_NAME)
         createResolvableConfiguration(project, XJC_PLUGINS_CONFIGURATION_NAME)
 
+        // CXF's code generation toolchain pulls in a vulnerable libraries transitively.
+        // Put a constraint on these (minimum version - may be upgraded) that takes effect for both CXF 3 and 4
+        project.dependencies.constraints.add(WSDL2JAVA_CONFIGURATION_NAME, "org.apache.commons:commons-lang3:3.18.0")
+        project.dependencies.constraints.add(WSDL2JAVA_CONFIGURATION_NAME, "org.apache.ws.xmlschema:xmlschema-core:2.3.3")
+
         wsdl2JavaConfiguration.defaultDependencies {
             addLater(extension.cxfVersion.map { project.dependencies.create("org.apache.cxf:cxf-tools-wsdlto-frontend-jaxws:$it") })
             addLater(extension.cxfVersion.map { project.dependencies.create("org.apache.cxf:cxf-tools-wsdlto-databinding-jaxb:$it") })
@@ -109,7 +114,6 @@ class Wsdl2JavaPlugin : Plugin<Project> {
         return project.configurations.maybeCreate(name).apply {
             isCanBeConsumed = false
             isCanBeResolved = true
-            isVisible = false
         }
     }
 }

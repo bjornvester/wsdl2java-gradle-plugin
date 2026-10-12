@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.github.bjornvester"
-version = "2.0.3"
+version = "2.0.4"
 
 repositories {
     mavenCentral()
@@ -51,7 +51,15 @@ tasks.withType<Wrapper> {
 }
 
 dependencies {
+    // CXF tools are compileOnly so the user can set a different version at runtime
+    // The two constraints are for transitive dependencies to CXF 4.2.3 that has security vulnerabilities
+    // Check if the constraints can be removed if updating CXF
     compileOnly(libs.cxf.tools.wsdlto.core)
+    constraints {
+        compileOnly("org.apache.commons:commons-lang3:3.18.0")
+        compileOnly("org.apache.ws.xmlschema:xmlschema-core:2.3.3")
+    }
+
     testImplementation(platform(libs.junit.bom)) // Version 6+ requires Java 17 and we still support Java 8
     testImplementation(libs.junit.jupiter.api)
     testImplementation(libs.junit.jupiter.params)
@@ -70,8 +78,7 @@ gradlePlugin {
             tags.set(listOf("wsdl2java", "cxf", "wsimport"))
             implementationClass = "com.github.bjornvester.wsdl2java.Wsdl2JavaPlugin"
             description = "Changes:\n" +
-                    "  - Update default dependencies\n" +
-                    "  - Support Gradle project isolation (incubating)"
+                    "  - Update default dependencies"
         }
     }
 }
