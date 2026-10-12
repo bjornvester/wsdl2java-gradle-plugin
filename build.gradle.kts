@@ -1,7 +1,10 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     `kotlin-dsl`
     id("java-gradle-plugin")
-    id("com.gradle.plugin-publish") version "1.2.0"
+    id("com.gradle.plugin-publish") version "2.2.1"
 }
 
 group = "com.github.bjornvester"
@@ -13,7 +16,19 @@ repositories {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(8))
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
+// Compile down to Java 8 bytecode so the plugin keeps supporting Java 8,
+// even though Gradle (and thus the test JVM) runs on Java 17.
+tasks.withType<JavaCompile>().configureEach {
+    options.release.set(8)
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_1_8)
     }
 }
 
@@ -36,11 +51,13 @@ tasks.withType<Wrapper> {
 }
 
 dependencies {
-    compileOnly("org.apache.cxf:cxf-tools-wsdlto-core:4.1.8")
-    testImplementation("commons-io:commons-io:2.14.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.3")
+    compileOnly("org.apache.cxf:cxf-tools-wsdlto-core:4.2.3")
+    testImplementation(platform("org.junit:junit-bom:5.14.4")) // Version 6+ requires Java 17 and we still support Java 8
+    testImplementation("commons-io:commons-io:2.22.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 gradlePlugin {
@@ -53,7 +70,8 @@ gradlePlugin {
             tags.set(listOf("wsdl2java", "cxf", "wsimport"))
             implementationClass = "com.github.bjornvester.wsdl2java.Wsdl2JavaPlugin"
             description = "Changes:\n" +
-                    "  - Fixed missing task dependency on wsdl2java from sourcesJar"
+                    "  - Update default dependencies\n" +
+                    "  - Support Gradle project isolation (incubating)"
         }
     }
 }

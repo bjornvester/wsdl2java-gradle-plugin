@@ -8,7 +8,9 @@ import javax.inject.Inject
 
 open class Wsdl2JavaPluginExtension @Inject constructor(objects: ObjectFactory, layout: ProjectLayout) : Wsdl2JavaPluginExtensionGroup {
     val useJakarta = objects.property(Boolean::class.java).convention(true)
-    val cxfVersion = objects.property(String::class.java).convention(useJakarta.map { if (it) "4.1.8" else "3.5.11" })
+    // Note that the javax (useJakarta=false) default is pinned to the last CXF 3.5.x release, as CXF 3.6+ requires Java 11
+    // and the plugin still supports Java 8 for the javax namespace.
+    val cxfVersion = objects.property(String::class.java).convention(useJakarta.map { if (it) "4.2.3" else "3.5.11" })
     val addCompilationDependencies: Property<Boolean> = objects.property(Boolean::class.java).convention(true)
     val useProcessIsolation: Property<Boolean> = objects.property(Boolean::class.java).convention(true)
 

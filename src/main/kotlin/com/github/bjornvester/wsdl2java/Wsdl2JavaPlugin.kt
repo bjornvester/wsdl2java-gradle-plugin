@@ -31,11 +31,6 @@ class Wsdl2JavaPlugin : Plugin<Project> {
         val wsdl2JavaConfiguration = createResolvableConfiguration(project, WSDL2JAVA_CONFIGURATION_NAME)
         createResolvableConfiguration(project, XJC_PLUGINS_CONFIGURATION_NAME)
 
-        // CXF's code generation toolchain pulls in a vulnerable commons-lang3 transitively.
-        // Pin the patched version (CVE-2025-48924, fixed in 3.18.0) without forcing it on the
-        // consumer's compile/runtime classpaths, only on the internal wsdl2java configuration.
-        project.dependencies.constraints.add(WSDL2JAVA_CONFIGURATION_NAME, "org.apache.commons:commons-lang3:3.18.0")
-
         wsdl2JavaConfiguration.defaultDependencies {
             addLater(extension.cxfVersion.map { project.dependencies.create("org.apache.cxf:cxf-tools-wsdlto-frontend-jaxws:$it") })
             addLater(extension.cxfVersion.map { project.dependencies.create("org.apache.cxf:cxf-tools-wsdlto-databinding-jaxb:$it") })
@@ -45,8 +40,7 @@ class Wsdl2JavaPlugin : Plugin<Project> {
         }
 
         project.configurations.named(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME) {
-            // The listProperty thing is a work-around for https://github.com/gradle/gradle/issues/13255
-            dependencies.addAllLater(project.objects.listProperty(Dependency::class.java).convention(extension.addCompilationDependencies.map {
+            dependencies.addAllLater(extension.addCompilationDependencies.map {
                 val deps = listOf<Dependency>().toMutableList()
                 if (it) {
                     val wsApiVersion = if (extension.useJakarta.get()) "3.0.1" else "2.3.3"
@@ -59,7 +53,7 @@ class Wsdl2JavaPlugin : Plugin<Project> {
                     }
                 }
                 deps
-            }))
+            })
         }
 
         val defaultTask = addWsdl2JavaTask(WSDL2JAVA_TASK_NAME, project, extension)
