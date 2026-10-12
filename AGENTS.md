@@ -15,7 +15,7 @@ Gradle plugin `com.github.bjornvester.wsdl2java` that runs Apache CXF's `wsdl2ja
 
 ## Commands
 
-- `./gradlew test` – full verification (multi-version GradleRunner matrix). Slow (minutes).
+- `./gradlew check` – full verification (multi-version GradleRunner matrix). Slow (minutes).
 - `./gradlew check` from `integration-test/` – fast standalone integration test on the local Gradle wrapper (8.1.1).
 - CI (`.github/workflows/main.yml`): Ubuntu, JDK 17, `./gradlew check`.
 
@@ -28,7 +28,9 @@ Gradle plugin `com.github.bjornvester.wsdl2java` that runs Apache CXF's `wsdl2ja
 ## Conventions & gotchas
 
 - `integration-test/settings.gradle.kts` `include(...)` lines are modified by the unit test – don't rename/reorder subprojects without updating `IntegrationTest.kt`.
-- `java-conventions.gradle.kts` pins some transitive deps for CVEs (neethi, commons-lang3, commons-io) – preserve when bumping CXF.
+- `java-conventions.gradle.kts` pins some transitive deps for CVEs (neethi, commons-lang3, commons-io) – Check if these can be removed when bumping CXF.
 - `wiremock` is pinned to 2.27.2; comment explains why it must not be upgraded.
 - Gradle 9 needs `junit-platform-launcher` declared explicitly on the test runtime classpath (already present).
 - Verify Java 8 compatibility after build changes: class file major version must stay 52.
+- **Dependabot** (`.github/dependabot.yml`) auto-updates the root build, the nested `integration-test` build, and GitHub Actions, but **ignores `org.apache.cxf`** – CXF is the Java 8/javax + Java 17/jakarta compatibility matrix, so bump it by hand and let the integration test gate it. The plugin's *default* dependency versions (CXF, `jakarta.*` APIs, slf4j) live in Kotlin source (`Wsdl2JavaPlugin.kt` / `Wsdl2JavaPluginExtension.kt`), which Dependabot can't see – those are manual too.
+- **Coupled CXF versions:** the root `compileOnly` CXF (`cxf` in `gradle/libs.versions.toml`) and the `cxfVersion` convention in `Wsdl2JavaPluginExtension.kt` must stay in sync – bump them together.

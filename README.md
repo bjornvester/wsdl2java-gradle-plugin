@@ -82,6 +82,14 @@ If you use Spring Boot, you should match the alignment to Jakarta EE:
 - Spring Boot version 3.0-3.1: Jakarta EE 9 (EE 10 supported)
 - Spring Boot version 2.0-2.7: Java EE 7/8
 
+If you are using CXF in your project as well, you can align the version by:
+
+```kotlin
+dependencies {
+    implementation(platform("org.apache.cxf:cxf-bom:4.2.3")) // CXF used for the project source code (and not the plugin) 
+}
+```
+
 ### Configure included WSDL files
 
 By default, the plugin will find all WSDL files in the `wsdlDir` directory, which defaults to `src/main/resources`.
