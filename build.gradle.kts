@@ -56,7 +56,7 @@ dependencies {
     // Check if the constraints can be removed if updating CXF
     compileOnly(libs.cxf.tools.wsdlto.core)
     constraints {
-        compileOnly("org.apache.commons:commons-lang3:3.18.0")
+        compileOnly("org.apache.commons:commons-lang3:3.21.0")
         compileOnly("org.apache.ws.xmlschema:xmlschema-core:2.3.3")
     }
 
