@@ -4,8 +4,8 @@ plugins {
 }
 
 dependencies {
-    implementation("org.jvnet.jaxb:jaxb2-basics-runtime:2.0.15")
-    xjcPlugins("org.jvnet.jaxb:jaxb2-basics:2.0.15")
+    implementation("org.jvnet.jaxb:jaxb2-basics-runtime:2.0.16")
+    xjcPlugins("org.jvnet.jaxb:jaxb2-basics:2.0.16")
 }
 
 wsdl2java {
